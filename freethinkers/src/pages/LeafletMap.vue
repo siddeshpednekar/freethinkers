@@ -70,10 +70,9 @@
 
 
 
-
-
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
@@ -93,27 +92,26 @@ const displayLocationDetails = ref(false);
 const selectedConstituency = ref(null);
 const constituencyOptions = ref([]);
 const constituencyDetails = ref(null);
-
-
+const pinMarker = ref(null); // Ref for the pin marker
+const route = useRoute();
+const potholeId = ref(route.query.id);
+console.log(potholeId.value)
 const loadMarkers = async () => {
   try {
-    const response = await axios.get('/Data.json');
+    const response = await axios.get('/data1.json');
     markers.value = response.data.markers;
-    filteredMarkers.value = markers.value; // Initialize filtered markers
+    filteredMarkers.value = markers.value;
 
-    // Extract unique constituencies
     const uniqueConstituencies = new Set(
       markers.value.map(marker => marker.properties.constituency)
     );
 
-    // Populate constituency options
     constituencyOptions.value = Array.from(uniqueConstituencies).map(constituency => ({
       label: constituency,
       value: constituency
     }));
 
-    // Prepare heatmap data from markers
-    heatmapData.value = markers.value.map(marker => marker.geometry.coordinates.slice().reverse()); // reverse to [lat, lng]
+    heatmapData.value = markers.value.map(marker => marker.geometry.coordinates.slice().reverse());
   } catch (error) {
     console.error('Error loading markers:', error);
   }
@@ -122,9 +120,8 @@ const loadMarkers = async () => {
 const updateMapMarkers = () => {
   if (!map.value) return;
 
-  // Remove existing markers from the map
   map.value.eachLayer(layer => {
-    if (layer instanceof L.Marker) {
+    if (layer instanceof L.Marker && layer !== pinMarker.value) {
       map.value.removeLayer(layer);
     }
   });
@@ -140,8 +137,7 @@ const updateMapMarkers = () => {
       .on('click', () => {
         selectedLocation.value = properties;
         displayLocationDetails.value = true;
-        console.log(properties);
-        map.value.setView(coordinates.slice().reverse(), 15); // Center map on marker
+        map.value.setView(coordinates.slice().reverse(), 15);
       })
       .on('mouseover', function () {
         this.openPopup();
@@ -177,22 +173,72 @@ const searchByConstituency = () => {
 
   if (location) {
     const [lat, lng] = location.geometry.coordinates.slice().reverse();
-    map.value.setView([lat, lng], 15); // Zoom to the location
-    selectedLocation.value = location.properties; // Update selected location
+    map.value.setView([lat, lng], 15);
+    selectedLocation.value = location.properties;
     constituencyDetails.value = {
       name: constituency,
-      description: "Description for " + constituency, // Placeholder for actual description
+      description: "Description for " + constituency,
       issueCount: markers.value.filter(marker => marker.properties.constituency === constituency).length
     };
   } else {
     alert('No matching constituency found.');
-    constituencyDetails.value = null; // Clear details if no match
+    constituencyDetails.value = null;
   }
 };
 
 const clearSelection = () => {
   selectedLocation.value = null;
   displayLocationDetails.value = false;
+  if (pinMarker.value) {
+    map.value.removeLayer(pinMarker.value); // Remove the pin marker if it exists
+    pinMarker.value = null;
+  }
+};
+
+const addOrUpdatePinMarker = (lat, lng, potholeProperties) => {
+  if (pinMarker.value) {
+    // Update the position of the existing marker
+    pinMarker.value.setLatLng([lat, lng]);
+    pinMarker.value.setPopupContent(getPopupContent(potholeProperties.properties));
+  } else {
+    // Create a new marker with custom icon and popup content
+    pinMarker.value = L.marker([lat, lng], {
+      icon: L.divIcon({
+        className: 'custom-icon', // Custom class for the icon
+        // html: '<div style="background-color: red; width: 10px; height: 10px; border-radius: 50%;"></div>', // Custom HTML for the icon
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      })
+    }).addTo(map.value).bindPopup(getPopupContent(potholeProperties.properties));
+    
+    // Open the popup immediately after adding the marker
+    pinMarker.value.openPopup();
+    setInterval(() => {
+      pinMarker.value.closePopup();
+    }, 2000);
+  }
+};
+
+
+const findAndDisplayPothole = () => {
+  
+  if (!potholeId.value) return;
+
+  const pothole = markers.value.find(marker => marker.properties.id == potholeId.value);
+console.log(pothole)
+  if (pothole) {
+    const [lat, lng] = pothole.geometry.coordinates.slice().reverse();
+    map.value.setView([lat, lng], 15);
+const potholeProperties = markers.value.find(marker => {if(marker.properties.id == potholeId.value)return marker.properties});
+console.log(potholeProperties)
+    selectedLocation.value = pothole.properties;
+
+    addOrUpdatePinMarker(lat, lng,potholeProperties);
+  } else {
+    alert('Pothole not found.');
+    displayLocationDetails.value = false;
+  }
 };
 
 onMounted(() => {
@@ -203,15 +249,14 @@ onMounted(() => {
   }).addTo(map.value);
 
   loadMarkers().then(() => {
-    // Initially display all markers
     updateMapMarkers();
-
-    // Add heatmap layer with adjusted options
     L.heatLayer(heatmapData.value, {
-      radius: 20, // Adjusted radius for the heat points
-      blur: 25,   // Adjusted blur for the heat points
-      maxZoom: 15 // Adjusted max zoom level where heat will be visible
+      radius: 20,
+      blur: 25,
+      maxZoom: 15
     }).addTo(map.value);
+
+    findAndDisplayPothole();
   });
 });
 </script>
@@ -238,6 +283,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index:1000;
 }
 
 .search-container {

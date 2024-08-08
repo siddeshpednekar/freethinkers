@@ -2,7 +2,7 @@
   <div>
     <!-- ======================= Cards ================== -->
     <div class="cardBox">
-      <div class="card" v-for="(card, index) in cards" :key="index">
+      <div class="card" v-for="(card, index) in cards" :key="index" @click="handleCardClick(index)">
         <div>
           <div class="numbers">{{ card.numbers }}</div>
           <div class="cardName">{{ card.name }}</div>
@@ -27,25 +27,96 @@
         </div>
 
         <table>
-          <tr v-for="(pothole, index) in recentPotholes" :key="index">
+          <tr v-for="(pothole, index) in recentPotholes" :key="index" @click="showPotholeDetails(pothole)">
             <td>
               <h4>
                 Constituency: {{ pothole.constituency }} <br />
                 <span>Date Reported: {{ pothole.ComplaintReceived }}</span><br/>
-                <span>Date Fixed: {{ pothole.FixedOn==null?"NOT FIXED":pothole.FixedOn }}</span>
+                <span>Date Fixed: {{ pothole.FixedOn == null ? "NOT FIXED" : pothole.FixedOn }}</span>
               </h4>
             </td>
           </tr>
         </table>
       </div>
     </div>
+
+    <!-- Modal for displaying constituency list -->
+   <q-dialog v-model="isConstituencyDialogVisible" class="custom-dialog">
+  <q-card>
+    <q-card-section>
+      <div class="dialog-header">
+        <div class="text-h6">Total Constituencies</div>
+        <q-icon name="close" style="margin-left:2rem;" @click="isConstituencyDialogVisible = false" class="close-icon" />
+      </div>
+    </q-card-section>
+
+    <q-card-section>
+      <!-- Table for constituency details -->
+      <table class="constituency-table">
+        <thead>
+          <tr>
+            <th class="text-left" style="color:#2a2185;">Constituencies</th>
+            <th class="text-left" style="color:#2a2185;">Potholes Reported</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(constituency, index) in constituencyList" :key="index">
+            <td>{{ constituency.name }}</td>
+            <td>{{ constituency.pendingPotholes }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </q-card-section>
+    
+    <q-card-actions>
+      <q-btn @click="isConstituencyDialogVisible = false" style="background:#2a2185;color:white;" label="Close" />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
+
+
+    <!-- Modal for displaying detailed information -->
+    <q-dialog v-model="isModalVisible" class="custom-dialog">
+      <q-card>
+        <q-card-section>
+          <div class="dialog-header">
+            <div class="text-h6">Pothole Details</div>
+            <q-icon name="close" @click="isModalVisible = false" style="margin-left:1rem;" class="close-icon" />
+          </div>
+        </q-card-section>
+
+        <q-card-section>
+          <div><strong>ID:</strong> {{ selectedPothole.id }}</div>
+          <div><strong>Coordinates:</strong> {{ selectedPothole.coordinates }}</div>
+          <div><strong>Area:</strong> {{ selectedPothole.area == null ? "NA" : selectedPothole.area }}</div>
+          <div><strong>Fixed On:</strong> {{ selectedPothole.FixedOn == null ? "NOT FIXED" : selectedPothole.FixedOn }}</div>
+          <div><strong>Constituency:</strong> {{ selectedPothole.constituency }}</div>
+          <div><strong>PWD Verified On:</strong> {{ selectedPothole.PWDVerifiedOn == null ? "NA" : selectedPothole.PWDVerifiedOn }}</div>
+          <div><strong>Complaint Received:</strong> {{ selectedPothole.ComplaintReceived }}</div>
+          <div><strong>Assigned To Contractor:</strong> {{ selectedPothole.AssignedToContractor == null ? "NA" : selectedPothole.AssignedToContractor }}</div>
+        </q-card-section>
+        <q-card-actions>
+          <q-btn @click="goToMapPage" style="background:#2a2185;color:white;" label="View on Map" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
+
 <script>
 import * as d3 from "d3";
+import { QDialog, QCard, QCardSection, QCardActions, QBtn } from 'quasar';
+import { useRouter } from 'vue-router';
 
 export default {
+  components: {
+    QDialog,
+    QCard,
+    QCardSection,
+    QCardActions,
+    QBtn
+  },
   data() {
     return {
       data: [],
@@ -53,17 +124,20 @@ export default {
         { numbers: "0", name: "No of Constituencies", icon: "ion-map" },
         { numbers: "0", name: "Total No of Potholes Not Fixed", icon: "ion-alert" },
         { numbers: "4", name: "No Of Flowmeters", icon: "ion-chatbubbles" },
-        { numbers: "$7,842", name: "Earning", icon: "ion-cash" },
+        { numbers: "$7,842", name: "Estimated Cost", icon: "ion-cash" },
       ],
       recentPotholes: [],
+      isModalVisible: false,
+      isConstituencyDialogVisible: false,
+      selectedPothole: {},
+      constituencyList: [],
+      router: useRouter()
     };
   },
   async mounted() {
-    // Fetch the data from the JSON file
     const response = await fetch("/potholeData.json");
     const jsonData = await response.json();
 
-    // Process the data
     const potholeCounts = {};
     let totalPotholesNotFixed = 0;
 
@@ -85,24 +159,52 @@ export default {
       count: value,
     }));
 
-    // Set the card values
     this.cards[0].numbers = Object.keys(potholeCounts).length;
     this.cards[1].numbers = totalPotholesNotFixed;
 
-    // Sort features by ComplaintReceived date and get the 5 most recent
+    this.constituencyList = this.data.map(d => ({
+      name: d.constituency,
+      pendingPotholes: d.count
+    }));
+
     this.recentPotholes = jsonData.features
       .sort((a, b) => new Date(b.properties.ComplaintReceived) - new Date(a.properties.ComplaintReceived))
       .slice(0, 5)
       .map(feature => ({
         id: feature.properties.id,
+        coordinates: feature.geometry.coordinates.join(", "),
+        area: feature.properties.area,
         constituency: feature.properties.constituency,
         ComplaintReceived: feature.properties.ComplaintReceived,
-        FixedOn: feature.properties.FixedOn
+        FixedOn: feature.properties.FixedOn,
+        PWDVerifiedOn: feature.properties.PWDVerifiedOn,
+        AssignedToContractor: feature.properties.AssignedToContractor
       }));
 
     this.renderChart();
   },
   methods: {
+    handleCardClick(index) {
+      if (index === 0) {
+        this.isConstituencyDialogVisible = true;
+      } else if (index === 1) {
+        this.router.push('/dashboard/notfixed');
+      }
+    },
+    showPotholeDetails(pothole) {
+      this.selectedPothole = pothole;
+      this.isModalVisible = true;
+    },
+    goToMapPage() {
+      if (this.selectedPothole && this.selectedPothole.id) {
+      this.router.push({ 
+        path: '/dashboard/maps', 
+        query: { id: this.selectedPothole.id } 
+      });
+    } else {
+      console.error('No pothole selected or pothole ID missing');
+    }
+  },
   renderChart() {
     const margin = { top: 20, right: 30, bottom: 80, left: 70 };
     const width = 700 - margin.left - margin.right;
@@ -117,10 +219,10 @@ export default {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     const x = d3
-      .scalePoint()
+      .scaleBand()
       .domain(this.data.map((d) => d.constituency))
       .range([0, width])
-      .padding(0.5);
+      .padding(0.2);
 
     const y = d3
       .scaleLinear()
@@ -128,61 +230,12 @@ export default {
       .nice()
       .range([height, 0]);
 
-    const line = d3
-      .line()
-      .x((d) => x(d.constituency))
-      .y((d) => y(d.count))
-      .curve(d3.curveMonotoneX);
-
-    // Add gradient for line color
-    const defs = svg.append("defs");
-
-    const gradient = defs
-      .append("linearGradient")
-      .attr("id", "line-gradient")
-      .attr("x1", "0%")
-      .attr("y1", "0%")
-      .attr("x2", "100%")
-      .attr("y2", "100%");
-
-    gradient
-      .append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", "#2a2185");
-
-    gradient
-      .append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", "#2a2185");
-
-    // Initialize the path with an empty d attribute
-    const path = svg
-      .append("path")
-      .data([this.data])
-      .attr("class", "line")
-      .attr("d", line)
-      .attr("fill", "none")
-      .attr("stroke", "url(#line-gradient)")
-      .attr("stroke-width", 2)
-      .attr("stroke-dasharray", "0,10000") // Start with an invisible line
-      .attr("stroke-dashoffset", "0");
-
-    // Apply transition to draw the line
-    path
-      .transition()
-      .duration(3000) // Duration of the animation
-      .attr("stroke-dasharray", function () {
-        const length = this.getTotalLength();
-        return `${length},${length}`; // Full length of the line
-      })
-      .attr("stroke-dashoffset", 0); // Animate the line drawing from the start
-
     // Add x-axis
     svg
       .append("g")
       .attr("class", "x-axis")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickSize(0).tickPadding(10))
+      .call(d3.axisBottom(x))
       .selectAll("text")
       .style("text-anchor", "end")
       .attr("transform", "rotate(-45)");
@@ -191,16 +244,16 @@ export default {
     svg
       .append("g")
       .attr("class", "y-axis")
-      .call(d3.axisLeft(y).tickSize(0).tickPadding(10))
+      .call(d3.axisLeft(y))
       .append("text")
-      .attr("x", -height / 2)  // Center the text vertically
-      .attr("y", -margin.left + 15) // Adjusted for better visibility
+      .attr("x", -height / 2)
+      .attr("y", -margin.left + 15)
       .attr("dy", ".71em")
       .attr("transform", "rotate(-90)")
       .attr("text-anchor", "middle")
       .style("font-weight", "300")
       .text("Number of Potholes");
-      
+
     // Add x-axis label
     svg
       .append("text")
@@ -212,20 +265,6 @@ export default {
       .style("font-weight", "300")
       .text("Constituency");
 
-    // Add dots for each data point
-    svg
-      .selectAll(".dot")
-      .data(this.data)
-      .enter()
-      .append("circle")
-      .attr("class", "dot")
-      .attr("cx", (d) => x(d.constituency))
-      .attr("cy", (d) => y(d.count))
-      .attr("r", 6)
-      .attr("fill", "#2a2185")
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 2);
-
     // Add tooltip
     const tooltip = d3
       .select(this.$refs.chart)
@@ -234,8 +273,18 @@ export default {
       .style('opacity', 0)
       .style('position', 'absolute');
 
+    // Add bars with transition
     svg
-      .selectAll('.dot')
+      .selectAll(".bar")
+      .data(this.data)
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", (d) => x(d.constituency))
+      .attr("y", height)  // Initial y position at the bottom
+      .attr("width", x.bandwidth())
+      .attr("height", 0)  // Initial height of 0
+      .attr("fill", "#2a2185")
       .on('mouseover', function (event, d) {
         // Get the bounding rectangle of the parent element
         const parentRect = this.parentNode.getBoundingClientRect();
@@ -260,15 +309,96 @@ export default {
           .duration(500)
           .style('display','none')
           .style('opacity', 0);
-      });
+      })
+      .transition()
+      .duration(2000)  // Animation duration of 1000ms (1 second)
+      .attr("y", (d) => y(d.count))  // Final y position
+      .attr("height", (d) => height - y(d.count));  // Final height
   },
-}
+},
 
 };
 </script>
 
 <style scoped>
+
 /* ======================= Cards ====================== */
+
+
+.constituency-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.constituency-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+.constituency-table td:first-child {
+  font-weight: bold;
+}
+
+.constituency-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.custom-dialog .q-card {
+  max-width: 500px;
+  margin: auto;
+  background-color: #ffffff; /* White background for clarity */
+  border-radius: 12px; /* Slightly more rounded corners */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Slightly deeper shadow for more emphasis */
+  padding: 20px;
+  position: relative;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #2a2185; /* Dark blue separator line */
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.text-h6 {
+  color: #2a2185; /* Dark blue color for header text */
+  font-size: 1.5rem; /* Larger font size for prominence */
+  font-weight: 600; /* Slightly bolder text */
+}
+
+.close-icon {
+  cursor: pointer;
+  color: #2a2185; /* Dark blue color */
+  font-size: 2rem; /* Larger icon size for better visibility */
+  transition: color 0.3s, transform 0.3s; /* Smooth transition for color and scale */
+}
+
+.close-icon:hover {
+  color: #4f46b4; /* Red color on hover for visual feedback */
+  transform: scale(1.1); /* Slightly increase size on hover */
+}
+
+.q-card-section {
+  padding: 15px 20px;
+}
+
+.q-card-section div {
+  margin: 12px 0px; /* Increased spacing for better readability */
+  font-size: 1rem; /* Standard font size */
+  color: #333; /* Dark grey text color */
+}
+
+.q-card-section div strong {
+  color: #2a2185; /* Dark blue for labels */
+}
+
+.q-card-section div:last-child {
+  margin-bottom: 0; /* Remove margin from the last item */
+}
 .cardBox {
   position: relative;
   width: 100%;
@@ -464,6 +594,8 @@ export default {
 .recentCustomers table tr:hover td h4 span {
   color: var(--white);
 }
+
+
 
 /* ====================== Responsive Design ========================== */
 @media (max-width: 991px) {

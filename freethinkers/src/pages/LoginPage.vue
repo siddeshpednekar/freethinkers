@@ -4,19 +4,20 @@
       <div class="inner-box">
         <div class="forms-wrap">
           <form @submit.prevent="handleSignIn" autocomplete="off" class="sign-in-form">
-          <div>
-            <div class="logo">
-              <img src="/img/logo.png" alt="easyclass" />
-              <h4>logo</h4>
-            </div>
+            <div>
+              <div class="logo">
+                <img src="/img/logo.png" alt="easyclass" />
+                <h4>FreeThinkers</h4>
+              </div>
 
-            <div class="heading">
-              <h2>Login Page</h2>
-            </div>
+              <div class="heading">
+                <h2>Login Page</h2>
+              </div>
             </div>
             <div class="actual-form">
               <div class="input-wrap">
                 <input
+                  v-model="username"
                   type="text"
                   minlength="4"
                   class="input-field"
@@ -28,6 +29,7 @@
 
               <div class="input-wrap">
                 <input
+                  v-model="password"
                   type="password"
                   minlength="4"
                   class="input-field"
@@ -39,67 +41,14 @@
 
               <input type="submit" value="Sign In" class="sign-btn" />
 
-              <p class="text">
+              <!-- <p class="text">
                 Forgotten your password or your login details?
                 <a href="#">Get help</a> signing in
-              </p>
+              </p> -->
             </div>
           </form>
 
-          <form action="index.html" autocomplete="off" class="sign-up-form">
-            <div class="logo">
-              <img src="/img/logo.png" alt="easyclass" />
-              <h4>easyclass</h4>
-            </div>
-
-            <div class="heading">
-              <h2>Get Started</h2>
-              <h6>Already have an account?</h6>
-              <a href="#" class="toggle">Sign in</a>
-            </div>
-
-            <div class="actual-form">
-              <div class="input-wrap">
-                <input
-                  type="text"
-                  minlength="4"
-                  class="input-field"
-                  autocomplete="off"
-                  required
-                />
-                <label>Name</label>
-              </div>
-
-              <div class="input-wrap">
-                <input
-                  type="email"
-                  class="input-field"
-                  autocomplete="off"
-                  required
-                />
-                <label>Email</label>
-              </div>
-
-              <div class="input-wrap">
-                <input
-                  type="password"
-                  minlength="4"
-                  class="input-field"
-                  autocomplete="off"
-                  required
-                />
-                <label>Password</label>
-              </div>
-
-              <input type="submit" value="Sign Up" class="sign-btn" />
-
-              <p class="text">
-                By signing up, I agree to the
-                <a href="#">Terms of Services</a> and
-                <a href="#">Privacy Policy</a>
-              </p>
-            </div>
-          </form>
+          <!-- Sign up form can remain unchanged -->
         </div>
 
         <div class="carousel">
@@ -113,8 +62,9 @@
             <div class="text-wrap">
               <div class="text-group">
                 <h2>Visualize Data with charts</h2>
-                <h2>Customize as you like</h2>
-                <h2>Invite students to your class</h2>
+                <h2>Analyse 
+                Data</h2>
+                <h2>insights about the data</h2>
               </div>
             </div>
 
@@ -131,8 +81,16 @@
 </template>
 
 <script>
+import { Notify } from 'quasar'
+
 export default {
   name: 'LoginPage',
+  data() {
+    return {
+      username: '',
+      password: ''
+    }
+  },
   mounted() {
     const inputs = document.querySelectorAll(".input-field");
     const toggle_btn = document.querySelectorAll(".toggle");
@@ -176,9 +134,20 @@ export default {
   },
   methods: {
     handleSignIn() {
-      // Perform sign-in logic (e.g., authentication) here
-      // Assuming sign-in is successful:
-      this.$router.push('/dashboard');
+      if (this.username === 'admin' && this.password === 'admin') {
+        Notify.create({
+          type: 'positive',
+          position:'top',
+          message: 'Login successful!'
+        });
+        this.$router.push('/dashboard');
+      } else {
+        Notify.create({
+          type: 'negative',
+          position:'top',
+          message: 'Invalid username or password'
+        });
+      }
     }
   }
 }

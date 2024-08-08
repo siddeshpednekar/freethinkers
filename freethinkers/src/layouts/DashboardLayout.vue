@@ -31,12 +31,7 @@
           <div class="toggle" @click="toggleNav">
             <q-icon name="ion-menu"></q-icon>
           </div>
-          <div class="search">
-            <label>
-              <input type="text" placeholder="Search here" />
-              <q-icon name="ion-search"></q-icon>
-            </label>
-          </div>
+
           <div class="user">
             <img src="customer01.jpg" alt="" />
           </div>
@@ -60,12 +55,12 @@ export default {
       isNavActive: false,
       hoveredIndex: null,
       navItems: [
-        { title: "App Name", icon: "ion-logo-apple", src: "/img/logo.png"},
+        { title: "FreeThinkers", icon: "ion-logo-apple", src: "/img/logo.png"},
         { title: "Dashboard", icon: "ion-home",to:'/dashboard' },
         { title: "Maps", icon: "ion-map" ,to:'/dashboard/maps'},
-        { title: "Help", icon: "ion-help" },
-        { title: "Settings", icon: "ion-settings" },
-        { title: "Password", icon: "ion-lock" },
+        { title: "Pending Potholes", icon: "ion-help" ,to:'/dashboard/notfixed',src:'/file.png' },
+        { title: "FLowmeter Analysis", icon: "ion-settings" ,to:"/dashboard/flowanalysis",src:'/analytics.png'},
+        { title: "Flowmeter Data", icon: "ion-lock" ,to:'/dashboard/flowdata',src:'/database.png'},
         { title: "Sign Out", icon: "ion-log-out",to:'/' },
       ],
     };
@@ -78,6 +73,7 @@ export default {
       this.hoveredIndex = index;
     },
     goto(route) {
+      this.isNavActive = !this.isNavActive;
       this.$router.push(route);
     }
   },
