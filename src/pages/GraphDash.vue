@@ -47,6 +47,7 @@ export default {
 </script>
 
 <style>
+
 .container {
   display: grid;
   grid-template-columns: 200px 1fr; /* Fixed width for buttons, flexible width for content */
