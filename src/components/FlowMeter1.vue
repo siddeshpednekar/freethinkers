@@ -121,6 +121,7 @@ export default {
 </script>
 
 <style>
+/* Base Styles for the Page */
 html, body, #q-app, .q-page {
   height: 100%;
   width: 100%;
@@ -128,14 +129,18 @@ html, body, #q-app, .q-page {
   padding: 0;
 }
 
+/* Main Container */
 .dashboard-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 16px;
   height: 100%;
   width: 100%;
+  box-sizing: border-box;
 }
 
+/* Row for Graphs */
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -144,6 +149,7 @@ html, body, #q-app, .q-page {
   width: 100%;
 }
 
+/* Column Definitions */
 .col-6, .col-12 {
   display: flex;
   justify-content: center;
@@ -159,24 +165,33 @@ html, body, #q-app, .q-page {
   max-width: 100%; /* Full-width column */
 }
 
-/* Container for graph and zoom icon */
+/* Responsive Column Adjustments */
+@media (max-width: 768px) {
+  .col-6 {
+    max-width: 100%;
+  }
+}
+
+/* Graph Container */
 .graph-container {
   position: relative;
   width: 100%;
 }
 
-/* Increased width of the bar chart */
+/* Increased Width for Bar Chart */
 .bar-chart-container {
-  max-width: calc(100% + 300px); /* Increase the width by 300px */
+  max-width: 100%;
+  width: 100%; /* Ensure full width on smaller screens */
 }
 
+/* Iframe Styling */
 iframe {
   width: 100%;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Zoom icon styling */
+/* Zoom Icon Styling */
 .zoom-icon {
   position: absolute;
   top: 8px;
@@ -187,7 +202,7 @@ iframe {
   cursor: pointer;
 }
 
-/* Style for zoomed-in content */
+/* Zoomed-in View Styling */
 .zoomed {
   position: absolute;
   top: 0;
@@ -203,7 +218,7 @@ iframe {
   transform: scale(1);
 }
 
-/* Back button styling */
+/* Back Button Styling */
 .back-button {
   position: absolute;
   top: 16px;
@@ -212,4 +227,89 @@ iframe {
   border-radius: 50%;
   cursor: pointer;
 }
+
+/* Base Button Styling */
+.q-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+/* Responsive Button Adjustments */
+@media (max-width: 768px) {
+  .q-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .q-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Primary Button Styling */
+.q-btn--primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.q-btn--primary:hover {
+  background-color: #2980b9;
+}
+
+/* Secondary Button Styling */
+.q-btn--secondary {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.q-btn--secondary:hover {
+  background-color: #27ae60;
+}
+
+/* Outline Button Styling */
+.q-btn--outline {
+  background-color: transparent;
+  border: 2px solid #3498db;
+  color: #3498db;
+}
+
+.q-btn--outline:hover {
+  background-color: #3498db;
+  color: white;
+}
+
+/* Icon Button Styling */
+.q-btn--icon {
+  background-color: transparent;
+  color: #3498db;
+  border-radius: 50%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.q-btn--icon:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* Disabled Button Styling */
+.q-btn--disabled {
+  background-color: #bdc3c7;
+  color: white;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 </style>

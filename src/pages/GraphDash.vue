@@ -12,8 +12,6 @@
         <FlowMeter2 v-if="currentFlowmeter === 2" />
         <FlowMeter3 v-if="currentFlowmeter === 3" />
         <FlowMeter4 v-if="currentFlowmeter === 4" />
-
-        <!-- Add components for Flowmeter 2, 3, 4 here and conditionally render them -->
       </div>
     </div>
   </q-page>
@@ -31,7 +29,6 @@ export default {
     FlowMeter2,
     FlowMeter3,
     FlowMeter4
-    // Import other Flowmeter components here
   },
   data() {
     return {
@@ -46,15 +43,13 @@ export default {
 };
 </script>
 
-<style>
-
+<style scoped>
 .container {
   display: grid;
-  grid-template-columns: 200px 1fr; /* Fixed width for buttons, flexible width for content */
-  grid-template-rows: 1fr;
+  grid-template-columns: 200px 1fr;
+  grid-gap: 20px;
   height: 100vh;
-  padding: 5%;
-  padding-right: 20px;
+  padding: 20px;
   width: 100%;
   background-color: rgb(255, 254, 254);
 }
@@ -70,12 +65,39 @@ export default {
 }
 
 .dashboard-content {
-  display: grid;
-  width: 2000px;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  grid-column-gap: 5px;
-  grid-row-gap: 6px;
+  display: flex;
+  /* width: 10000px; */
+  flex-direction: column;
+  gap: 20px;
   padding-left: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .buttons-container {
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 5px;
+  }
+
+  .dashboard-content {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .buttons-container {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .dashboard-content {
+    gap: 10px;
+  }
 }
 </style>
