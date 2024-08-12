@@ -1,7 +1,7 @@
 <template>
   <div>
-  <div class="heading">
-    <span class="title">Flowmeter Data Analysis</span>
+    <div class="heading">
+      <span class="title">Flowmeter Data Analysis</span>
     </div>
     <div v-if="error" class="error">
       <p>Error: {{ error }}</p>
@@ -18,7 +18,7 @@
             :max="totalCount"
             color="red-10"
             track-color="grey-5"
-            size="150px"
+            size="200px"
             class="knob"
             :disable="!knobEnabled"
           />
@@ -30,9 +30,9 @@
             v-model="belowCount"
             :min="0"
             :max="totalCount"
-            color="yellow-10"
+            color="yellow-7"
             track-color="grey-5"
-            size="150px"
+            size="200px"
             class="knob"
             :disable="!knobEnabled"
           />
@@ -46,7 +46,7 @@
             :max="totalCount"
             color="green-10"
             track-color="grey-5"
-            size="150px"
+            size="200px"
             class="knob"
             :disable="!knobEnabled"
           />
@@ -55,10 +55,26 @@
         </div>
       </div>
       <div class="dropdowns">
-        <button @click="showDropdown('exceed')">Exceed</button>
-        <button @click="showDropdown('below')">Below</button>
-        <button @click="showDropdown('average')">Average</button>
-        <button @click="showDropdown('all')">All Data</button>
+        <button 
+          @click="showDropdown('exceed')" 
+          :class="{ active: selectedColor === 'exceed' }">
+          Exceed
+        </button>
+        <button 
+          @click="showDropdown('below')" 
+          :class="{ active: selectedColor === 'below' }">
+          Below
+        </button>
+        <button 
+          @click="showDropdown('average')" 
+          :class="{ active: selectedColor === 'average' }">
+          Average
+        </button>
+        <button 
+          @click="showDropdown('all')" 
+          :class="{ active: selectedColor === 'all' }">
+          All Data
+        </button>
       </div>
       <div class="flowmeter-info-container">
         <div class="flowmeter-selector">
@@ -81,11 +97,11 @@
       </div>
       <div v-if="showInfo" class="threshold-info">
         <h2 style="font-size:2rem;">Threshold Information</h2>
-        <p tyle="color:#999;padding-left:1rem;">Flowmeter {{ selectedFlowmeter }}</p>
-        <p tyle="color:#999;padding-left:1rem;">Average: {{ thresholds[selectedFlowmeter].average.toFixed(2) }}</p>
-        <p tyle="color:#999;padding-left:1rem;">Maximum: {{ thresholds[selectedFlowmeter].max.toFixed(2) }}</p>
-        <p tyle="color:#999;padding-left:1rem;">Minimum: {{ thresholds[selectedFlowmeter].min.toFixed(2) }}</p>
-        <p tyle="color:#999;padding-left:1rem;">Formula Used:</p>
+        <p>Flowmeter {{ selectedFlowmeter }}</p>
+        <p >Average: {{ thresholds[selectedFlowmeter].average.toFixed(2) }}</p>
+        <p>Maximum: {{ thresholds[selectedFlowmeter].max.toFixed(2) }}</p>
+        <p >Minimum: {{ thresholds[selectedFlowmeter].min.toFixed(2) }}</p>
+        <p>Formula Used:</p>
         <ul>
           <li>Maximum = Average * 1.1</li>
           <li>Minimum = Average * 0.9</li>
@@ -113,6 +129,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 import { QKnob as VueKnob } from 'vue-knob';
@@ -124,7 +141,7 @@ export default {
       rawData: [],
       data: [],
       error: null,
-      selectedColor: null,
+      selectedColor: 'all', // Set default to 'all'
       selectedFlowmeter: '1',
       selectedMonth: '',
       thresholds: {
@@ -209,34 +226,40 @@ export default {
       }
     },
     updateData() {
-      const flowmeterField = `field${this.selectedFlowmeter * 2}`;
-      const selectedThresholds = this.thresholds[this.selectedFlowmeter];
+    const flowmeterField = `field${this.selectedFlowmeter * 2}`;
+    const selectedThresholds = this.thresholds[this.selectedFlowmeter];
 
-      this.data = this.rawData.map(item => {
-        const value = parseFloat(item[flowmeterField]);
-        let status = 'average';
+    let filteredData = this.rawData.map(item => {
+      const value = parseFloat(item[flowmeterField]);
+      let status = 'average';
 
-        if (value > selectedThresholds.max) {
-          status = 'exceed';
-        } else if (value < selectedThresholds.min) {
-          status = 'below';
-        }
+      if (value > selectedThresholds.max) {
+        status = 'exceed';
+      } else if (value < selectedThresholds.min) {
+        status = 'below';
+      }
 
-        return {
-          date: item[`Flowmeter ${this.selectedFlowmeter}`],
-          value,
-          status
-        };
-      });
+      return {
+        date: item[`Flowmeter ${this.selectedFlowmeter}`],
+        value,
+        status
+      };
+    });
 
-      this.updateKnobs();
-    },
-    updateKnobs() {
-      this.exceedCount = this.data.filter(item => item.status === 'exceed').length;
-      this.belowCount = this.data.filter(item => item.status === 'below').length;
-      this.averageCount = this.data.filter(item => item.status === 'average').length;
-      this.knobEnabled = false;
-    },
+    // Filter by month if selected
+    if (this.selectedMonth) {
+      filteredData = filteredData.filter(item => item.date && item.date.split('-')[1] === this.selectedMonth);
+    }
+
+    this.data = filteredData;
+    this.updateKnobs();
+  },
+  updateKnobs() {
+    this.exceedCount = this.data.filter(item => item.status === 'exceed').length;
+    this.belowCount = this.data.filter(item => item.status === 'below').length;
+    this.averageCount = this.data.filter(item => item.status === 'average').length;
+    this.knobEnabled = false;
+  },
     getStatusLabel(status) {
       switch (status) {
         case 'exceed': return 'Exceeded maximum threshold';
@@ -264,6 +287,7 @@ export default {
     },
     showDropdown(color) {
       this.selectedColor = color;
+      this.updateData(); // Update data based on selected color
     }
   },
   mounted() {
@@ -271,6 +295,8 @@ export default {
   }
 };
 </script>
+
+
 <style scoped>
 .knob-container {
   display: flex;
@@ -324,56 +350,8 @@ export default {
 .dropdowns {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
-  margin-top: 10%;
-}
-
-.knob-wrapper {
-  position: relative;
-  text-align: center;
-  padding: 10px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
-}
-
-.knob-wrapper:hover {
-  transform: scale(1.05);
-}
-
-.knob {
-  margin: 0;
-  border-radius: 50%;
-  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.knob-label, .knob-value {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.4em;
-  color: black;
-}
-
-.knob-label {
-  top: 35%;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-.knob-value {
-  bottom: 20%;
-  font-size: 1.6em;
-  color: #0c0b0b;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-}
-/* Navigation Button Styles */
-.dropdowns {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  margin-top: 10%;
+  margin-bottom: 10px; /* Reduced from 20px to 10px */
+  margin-top: 10px; /* Reduced from 10% to 10px */
 }
 
 .dropdowns button {
@@ -393,13 +371,23 @@ export default {
   color: white;
 }
 
+
 /* Info Button Styles */
 
 
 .dropdown-content {
   margin-top: 20px;
 }
+.dropdowns button.active {
+  background-color: #2a2185;
+  color: white;
+  border: 2px solid #2a2185;
+}
 
+.dropdowns button:hover {
+  background-color: #2a2185;
+  color: white;
+}
 
 .flowmeter-info-container {
   display: flex;
@@ -407,10 +395,7 @@ export default {
   margin-top: 0;
   justify-content: center;
   align-content: center;
-<<<<<<< HEAD
   
-=======
->>>>>>> a69dbed02b713eff23d9ba86df69287c4572754e
 }
 
 .flowmeter-selector, .month-selector {
@@ -440,17 +425,12 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
   height: 50px;
-  margin-top: 10px;
+  margin-top: 5px; /* Reduced from 10px to 5px */
 }
 
 .info-button:hover {
-<<<<<<< HEAD
   background-color: #544caa;
   color: #fff;
-=======
-  background-color: white;
-  color: #2a2185;
->>>>>>> a69dbed02b713eff23d9ba86df69287c4572754e
 }
 
 .data-table {
@@ -498,7 +478,6 @@ export default {
   text-align: center;
 }
 
-<<<<<<< HEAD
 .heading{
   display:flex;
   align-items:center;
@@ -519,17 +498,7 @@ export default {
   border-radius:2rem;
   padding:2rem;
   box-shadow: 0 7px 25px rgba(0, 0, 0, 0.1);
-  color:#222;
+  color:#131313;
 }
 
 </style>
-=======
-h1{
-  text-align: center;
-  font-size: xxx-large;
-  padding: 2rem;
-  color: #2a2185;
-}
-
-</style>
->>>>>>> a69dbed02b713eff23d9ba86df69287c4572754e
