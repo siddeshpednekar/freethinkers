@@ -8,10 +8,9 @@
         <q-btn label="Flowmeter 4" @click="showFlowmeter(4)" class="flowmeter-button" />
       </div>
       <div class="dashboard-content">
-        <FlowMeter1 v-if="currentFlowmeter === 1" />
-        <FlowMeter2 v-if="currentFlowmeter === 2" />
-        <FlowMeter3 v-if="currentFlowmeter === 3" />
-        <FlowMeter4 v-if="currentFlowmeter === 4" />
+        <transition name="fade" mode="out-in">
+          <component :is="currentFlowmeterComponent" />
+        </transition>
       </div>
     </div>
   </q-page>
@@ -35,6 +34,11 @@ export default {
       currentFlowmeter: 1
     };
   },
+  computed: {
+    currentFlowmeterComponent() {
+      return `FlowMeter${this.currentFlowmeter}`;
+    }
+  },
   methods: {
     showFlowmeter(flowmeterNumber) {
       this.currentFlowmeter = flowmeterNumber;
@@ -45,6 +49,7 @@ export default {
 
 <style scoped>
 .container {
+  background-color: brown;
   display: grid;
   grid-template-columns: 200px 1fr;
   grid-gap: 20px;
@@ -66,10 +71,18 @@ export default {
 
 .dashboard-content {
   display: flex;
-  /* width: 10000px; */
   flex-direction: column;
   gap: 20px;
   padding-left: 20px;
+}
+
+/* Transition styles */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 
 /* Responsive adjustments */
