@@ -328,6 +328,54 @@ export default {
   margin-top: 10%;
 }
 
+.knob-wrapper {
+  position: relative;
+  text-align: center;
+  padding: 10px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.knob-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.knob {
+  margin: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.knob-label, .knob-value {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.4em;
+  color: black;
+}
+
+.knob-label {
+  top: 35%;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.knob-value {
+  bottom: 20%;
+  font-size: 1.6em;
+  color: #0c0b0b;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+/* Navigation Button Styles */
+.dropdowns {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  margin-top: 10%;
+}
+
 .dropdowns button {
   background-color: white;
   color: #2a2185;
@@ -352,13 +400,17 @@ export default {
   margin-top: 20px;
 }
 
+
 .flowmeter-info-container {
   display: flex;
   margin-bottom: 20px;
   margin-top: 0;
   justify-content: center;
   align-content: center;
+<<<<<<< HEAD
   
+=======
+>>>>>>> a69dbed02b713eff23d9ba86df69287c4572754e
 }
 
 .flowmeter-selector, .month-selector {
@@ -392,8 +444,13 @@ export default {
 }
 
 .info-button:hover {
+<<<<<<< HEAD
   background-color: #544caa;
   color: #fff;
+=======
+  background-color: white;
+  color: #2a2185;
+>>>>>>> a69dbed02b713eff23d9ba86df69287c4572754e
 }
 
 .data-table {
@@ -441,6 +498,7 @@ export default {
   text-align: center;
 }
 
+<<<<<<< HEAD
 .heading{
   display:flex;
   align-items:center;
@@ -465,3 +523,13 @@ export default {
 }
 
 </style>
+=======
+h1{
+  text-align: center;
+  font-size: xxx-large;
+  padding: 2rem;
+  color: #2a2185;
+}
+
+</style>
+>>>>>>> a69dbed02b713eff23d9ba86df69287c4572754e
