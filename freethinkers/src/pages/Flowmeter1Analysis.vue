@@ -435,10 +435,12 @@ export default {
 
 .data-table {
   width: 100%;
+  margin: 10px;
   border-collapse: collapse;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  
 }
 
 
@@ -446,10 +448,13 @@ export default {
   border: 1px solid #ddd;
   padding: 10px;
   text-align: center;
+  
 }
 
 .data-table tr {
-  color: #000;
+  color: white;
+  background: #2a2185;
+  
 }
 
 .data-table .exceed-row {
