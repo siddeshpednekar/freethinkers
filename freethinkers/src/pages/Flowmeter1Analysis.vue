@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h1>Flowmeter Data Analysis</h1>
+  <div class="heading">
+    <span class="title">Flowmeter Data Analysis</span>
+    </div>
     <div v-if="error" class="error">
       <p>Error: {{ error }}</p>
     </div>
@@ -9,48 +11,48 @@
     </div>
     <div v-else>
       <div class="knob-container">
-        <q-knob
-          v-model="exceedCount"
-          :min="0"
-          :max="totalCount"
-          label="Exceeded"
-          color="red"
-          size="150px"
-          class="knob"
-          :disable="!knobEnabled"
-        >
-          <template #label>
-            <div class="knob-label">Exceeded</div>
-          </template>
-        </q-knob>
-        <q-knob
-          v-model="belowCount"
-          :min="0"
-          :max="totalCount"
-          label="Below"
-          color="yellow"
-          size="150px"
-          class="knob"
-          :disable="!knobEnabled"
-        >
-          <template #label>
-            <div class="knob-label">Below</div>
-          </template>
-        </q-knob>
-        <q-knob
-          v-model="averageCount"
-          :min="0"
-          :max="totalCount"
-          label="Average"
-          color="green"
-          size="150px"
-          class="knob"
-          :disable="!knobEnabled"
-        >
-          <template #label>
-            <div class="knob-label">Average</div>
-          </template>
-        </q-knob>
+        <div class="knob-wrapper">
+          <q-knob
+            v-model="exceedCount"
+            :min="0"
+            :max="totalCount"
+            color="red-10"
+            track-color="grey-5"
+            size="150px"
+            class="knob"
+            :disable="!knobEnabled"
+          />
+          <div class="knob-label">Exceeded</div>
+          <div class="knob-value">{{ exceedCount }}</div>
+        </div>
+        <div class="knob-wrapper">
+          <q-knob
+            v-model="belowCount"
+            :min="0"
+            :max="totalCount"
+            color="yellow-10"
+            track-color="grey-5"
+            size="150px"
+            class="knob"
+            :disable="!knobEnabled"
+          />
+          <div class="knob-label">Below</div>
+          <div class="knob-value">{{ belowCount }}</div>
+        </div>
+        <div class="knob-wrapper">
+          <q-knob
+            v-model="averageCount"
+            :min="0"
+            :max="totalCount"
+            color="green-10"
+            track-color="grey-5"
+            size="150px"
+            class="knob"
+            :disable="!knobEnabled"
+          />
+          <div class="knob-label">Average</div>
+          <div class="knob-value">{{ averageCount }}</div>
+        </div>
       </div>
       <div class="dropdowns">
         <button @click="showDropdown('exceed')">Exceed</button>
@@ -78,12 +80,12 @@
         <button @click="toggleInfo" class="info-button">Info</button>
       </div>
       <div v-if="showInfo" class="threshold-info">
-        <h2>Threshold Information</h2>
-        <p>Flowmeter {{ selectedFlowmeter }}</p>
-        <p>Average: {{ thresholds[selectedFlowmeter].average.toFixed(2) }}</p>
-        <p>Maximum: {{ thresholds[selectedFlowmeter].max.toFixed(2) }}</p>
-        <p>Minimum: {{ thresholds[selectedFlowmeter].min.toFixed(2) }}</p>
-        <p>Formula Used:</p>
+        <h2 style="font-size:2rem;">Threshold Information</h2>
+        <p tyle="color:#999;padding-left:1rem;">Flowmeter {{ selectedFlowmeter }}</p>
+        <p tyle="color:#999;padding-left:1rem;">Average: {{ thresholds[selectedFlowmeter].average.toFixed(2) }}</p>
+        <p tyle="color:#999;padding-left:1rem;">Maximum: {{ thresholds[selectedFlowmeter].max.toFixed(2) }}</p>
+        <p tyle="color:#999;padding-left:1rem;">Minimum: {{ thresholds[selectedFlowmeter].min.toFixed(2) }}</p>
+        <p tyle="color:#999;padding-left:1rem;">Formula Used:</p>
         <ul>
           <li>Maximum = Average * 1.1</li>
           <li>Minimum = Average * 0.9</li>
@@ -99,7 +101,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in filteredData" :key="index" :class="item.status">
+            <tr v-for="(item, index) in filteredData" :key="index" :class="getRowClass(item.status)">
               <td>{{ item.date }}</td>
               <td>{{ item.value.toFixed(2) }}</td>
               <td>{{ getStatusLabel(item.status) }}</td>
@@ -112,8 +114,8 @@
 </template>
 
 <script>
-import axios from 'axios'; // Import axios
-import { QKnob as VueKnob } from 'vue-knob'; // Import QKnob with a different name
+import axios from 'axios';
+import { QKnob as VueKnob } from 'vue-knob';
 
 export default {
   components: { QKnob },
@@ -123,8 +125,8 @@ export default {
       data: [],
       error: null,
       selectedColor: null,
-      selectedFlowmeter: '1', // Default to Flowmeter 1
-      selectedMonth: '', // Use an empty string for no month selected
+      selectedFlowmeter: '1',
+      selectedMonth: '',
       thresholds: {
         1: { max: null, min: null, average: null },
         2: { max: null, min: null, average: null },
@@ -134,9 +136,9 @@ export default {
       exceedCount: 0,
       belowCount: 0,
       averageCount: 0,
-      knobEnabled: true, // Add knobEnabled to control knob interactivity
-      showInfo: false, // Toggle for showing/hiding info
-      months: [] // Array to hold months for dropdown
+      knobEnabled: true,
+      showInfo: false,
+      months: []
     };
   },
   computed: {
@@ -164,7 +166,7 @@ export default {
             this.rawData = response.data.slice(0, 1500);
             this.extractMonths();
             this.calculateThresholds();
-            this.updateData(); // Ensure data is updated on fetch
+            this.updateData();
           } else {
             this.error = "Fetched data is not in the expected format.";
           }
@@ -182,14 +184,14 @@ export default {
           const date = item[`Flowmeter ${this.selectedFlowmeter}`].split(' ')[0];
           const parts = date.split('-');
           if (parts.length === 3) {
-            const month = parts[1]; // Extract month from date
+            const month = parts[1];
             months.add(month);
           } else {
             console.warn(`Date format issue: ${item[`Flowmeter ${this.selectedFlowmeter}`]}`);
           }
         }
       });
-      this.months = Array.from(months).sort(); // Sort months for dropdown
+      this.months = Array.from(months).sort();
     },
     calculateThresholds() {
       for (let i = 1; i <= 4; i++) {
@@ -233,7 +235,7 @@ export default {
       this.exceedCount = this.data.filter(item => item.status === 'exceed').length;
       this.belowCount = this.data.filter(item => item.status === 'below').length;
       this.averageCount = this.data.filter(item => item.status === 'average').length;
-      this.knobEnabled = false; // Disable knob interaction after updating
+      this.knobEnabled = false;
     },
     getStatusLabel(status) {
       switch (status) {
@@ -242,182 +244,224 @@ export default {
         default: return 'Within average range';
       }
     },
-    showDropdown(color) {
-      this.selectedColor = color;
-      this.updateData(); // Refresh data when filter changes
+    getRowClass(status) {
+      switch (status) {
+        case 'exceed': return 'exceed-row';
+        case 'below': return 'below-row';
+        case 'average': return 'average-row';
+        default: return '';
+      }
     },
     toggleInfo() {
       this.showInfo = !this.showInfo;
     },
     getMonthName(month) {
-      const months = [
+      const monthNames = [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
       ];
-      return months[parseInt(month, 10) - 1];
+      return monthNames[parseInt(month, 10) - 1] || '';
+    },
+    showDropdown(color) {
+      this.selectedColor = color;
     }
   },
   mounted() {
-    this.fetchData(); // Fetch data on mount
-    this.selectedFlowmeter = '1'; // Ensure Flowmeter 1 is selected by default
-    this.updateData(); // Update data to show Flowmeter 1's data
+    this.fetchData();
   }
 };
 </script>
-
-
-
-
-<style>
-h1 {
-  font-size: 28px;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.error {
-  color: #e74c3c;
-  font-weight: bold;
-}
-
-.loading {
-  color: #3498db;
-}
-
-.filters {
+<style scoped>
+.knob-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.knob-wrapper {
+  position: relative;
+  text-align: center;
+  padding: 10px;
+  margin:1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.knob-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.knob {
+  margin: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.knob-label, .knob-value {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.4em;
+  color: black;
+}
+
+.knob-label {
+  top: 35%;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.knob-value {
+  bottom: 20%;
+  font-size: 1.6em;
+  color: #0c0b0b;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+/* Navigation Button Styles */
+.dropdowns {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  margin-top: 10%;
 }
 
 .dropdowns button {
-  background-color: #2a2185;
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin-right: 10px;
-  cursor: pointer;
+  background-color: white;
+  color: #2a2185;
+  border: 2px solid #2a2185;
   border-radius: 5px;
-  font-size: 16px;
-  color: white;
+  padding: 8px 16px;
+  margin: 0 10px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .dropdowns button:hover {
-  background-color: #e0e0e0;
+  background-color: #2a2185;
+  color: white;
 }
 
-.month-filter select {
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 5px;
+/* Info Button Styles */
+
+
+.dropdown-content {
+  margin-top: 20px;
 }
 
 .flowmeter-info-container {
   display: flex;
-  align-items: center;
   margin-bottom: 20px;
+  margin-top: 0;
+  justify-content: center;
+  align-content: center;
+  
 }
 
-.flowmeter-selector {
-  margin-right: 10px;
+.flowmeter-selector, .month-selector {
+  margin: 10px;
+  
 }
 
-.flowmeter-selector select {
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 5px;
+.flowmeter-selector select, .month-selector select {
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  font-size: 1em;
 }
 
+.flowmeter-selector select:focus, .month-selector select:focus {
+  outline: none;
+  border-color: #7a7a7a;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
 .info-button {
-  background-color: #2a2185; /* Match the dropdown color */
+  background-color: #2a2185;
   color: white;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
+  border: 2px solid white;
   border-radius: 5px;
-  font-size: 16px;
+  padding: 0 2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  height: 50px;
+  margin-top: 10px;
 }
 
 .info-button:hover {
-  background-color: #2980b9;
-}
-
-.dropdown-content {
-  display: block;
+  background-color: #544caa;
+  color: #fff;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
+
 
 .data-table th, .data-table td {
-  padding: 10px;
   border: 1px solid #ddd;
-  text-align: left;
-}
-
-.data-table th {
-  background-color: #f4f4f4;
-  font-weight: bold;
-}
-
-.data-table .exceed {
-  background-color: #ffcccc; /* Light red */
-}
-
-.data-table .below {
-  background-color: #fff3cd; /* Light yellow */
-}
-
-.data-table .average {
-  background-color: #d4edda; /* Light green */
-}
-
-.threshold-info {
-  margin-top: 20px;
   padding: 10px;
-  border: 1px solid #ddd;
-  background-color: #2a2185; /* Updated color */
-  color: #fff; /* Text color inside threshold-info */
-}
-
-.threshold-info h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.threshold-info p {
-  margin: 5px 0;
-}
-
-.threshold-info ul {
-  margin: 0;
-  padding-left: 20px;
-  list-style-type: disc;
-}
-
-.knob-container {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 20px; /* Space below the knobs */
-}
-
-.q-knob {
-  position: relative;
-  width: 150px; /* Adjust width */
-  height: 150px; /* Adjust height */
-}
-
-.knob-label {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 18px; /* Adjust font size */
-  color: #fff; /* Adjust text color */
   text-align: center;
-  width: 100%; /* Ensure the label fits within the knob */
-  line-height: 1.2; /* Adjust line height for better spacing */
 }
+
+.data-table tr {
+  color: #000;
+}
+
+.data-table .exceed-row {
+  background-color: #ff4c4c;
+  color: white;
+}
+
+.data-table .below-row {
+  background-color: #fff176;
+  color: black;
+}
+
+.data-table .average-row {
+  background-color: #66bb6a;
+  color: white;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+}
+
+.loading {
+  font-style: italic;
+  text-align: center;
+}
+
+.heading{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.title{
+  font-size:1.5rem;
+  background:#fff;
+  margin:1rem;
+  color:#222;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.1);
+  padding:1rem;
+  border-radius:5rem;
+}
+.threshold-info{
+  background:#fff;
+  margin:2rem;
+  border-radius:2rem;
+  padding:2rem;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.1);
+  color:#222;
+}
+
 </style>

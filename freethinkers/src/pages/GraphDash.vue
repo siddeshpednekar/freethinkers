@@ -1,113 +1,80 @@
 <template>
-  <div class="container">
-    <div class="chart top-left">
-      <PieChart />
-    </div>
-    <div class="chart top-right">
-      <LineGraph />
-    </div>
-    <div class="bottom">
-      <div class="middle-content">
-        <BarChart />
+  <q-page padding>
+    <div class="container">
+      <div class="buttons-container">
+        <q-btn label="Flowmeter 1" @click="showFlowmeter(1)" class="flowmeter-button" />
+        <q-btn label="Flowmeter 2" @click="showFlowmeter(2)" class="flowmeter-button" />
+        <q-btn label="Flowmeter 3" @click="showFlowmeter(3)" class="flowmeter-button" />
+        <q-btn label="Flowmeter 4" @click="showFlowmeter(4)" class="flowmeter-button" />
       </div>
-      <div class="icons">
-        <i class="fas fa-signal"></i>
-        <i class="fas fa-chart-bar"></i>
-        <i class="fas fa-chart-pie"></i>
+      <div class="dashboard-content">
+        <FlowMeter1 v-if="currentFlowmeter === 1" />
+        <FlowMeter2 v-if="currentFlowmeter === 2" />
+        <FlowMeter3 v-if="currentFlowmeter === 3" />
+        <FlowMeter4 v-if="currentFlowmeter === 4" />
+
+        <!-- Add components for Flowmeter 2, 3, 4 here and conditionally render them -->
       </div>
     </div>
-  </div>
+  </q-page>
 </template>
 
 <script>
-import BarChart from 'src/components/BarChart.vue';
-import PieChart from 'src/components/PieChart.vue';
-import LineGraph from 'src/components/LineGraph.vue';
+import FlowMeter1 from '../components/FlowMeter1.vue';
+import FlowMeter2 from '../components/FlowMeter2.vue';
+import FlowMeter3 from '../components/FlowMeter3.vue';
+import FlowMeter4 from '../components/FlowMeter4.vue';
 
 export default {
   components: {
-    BarChart,
-    PieChart,
-    LineGraph,
+    FlowMeter1,
+    FlowMeter2,
+    FlowMeter3,
+    FlowMeter4
+    // Import other Flowmeter components here
   },
+  data() {
+    return {
+      currentFlowmeter: 1
+    };
+  },
+  methods: {
+    showFlowmeter(flowmeterNumber) {
+      this.currentFlowmeter = flowmeterNumber;
+    }
+  }
 };
 </script>
 
-<style scoped>
+<style>
 .container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr;
-  grid-gap: 16px;
-  background:#f5f5f5;
-  width: 100vw;
+  grid-template-columns: 200px 1fr; /* Fixed width for buttons, flexible width for content */
+  grid-template-rows: 1fr;
   height: 100vh;
-  padding: 20px;
-  box-sizing: border-box;
+  padding: 5%;
+  padding-right: 20px;
+  width: 100%;
+  background-color: rgb(255, 254, 254);
 }
 
-.chart {
-  background-color: var(--white);
-  border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.top-left {
-  grid-area: 1 / 1 / 2 / 2;
+.flowmeter-button {
+  width: 100%;
 }
 
-.top-right {
-  grid-area: 1 / 2 / 2 / 3;
-}
-
-.bottom {
-  grid-area: 2 / 1 / 3 / 3;
+.dashboard-content {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.middle-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.icons {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  align-items: center;
-}
-
-.icons i {
-  font-size: 24px;
-  cursor: pointer;
-  color: #333;
-  transition: color 0.3s;
-}
-
-.icons i:hover {
-  color: #2a2185; /* Change this to your preferred hover color */
-}
-
-@media (max-width: 768px) {
-  .container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-  }
-
-  .top-left, .top-right, .bottom {
-    grid-column: 1 / 2;
-  }
-
-  .bottom {
-    grid-template-columns: 1fr;
-  }
+  width: 2000px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-column-gap: 5px;
+  grid-row-gap: 6px;
+  padding-left: 20px;
 }
 </style>
