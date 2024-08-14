@@ -1,0 +1,282 @@
+[
+    {
+        "id": 1,
+        "name": "Ursa",
+        "location": "Assagao",
+        "type": "flowmeter",
+        "position": "1"
+    },
+    {
+        "id": 2,
+        "name": "Capricorn",
+        "location": "Aldona",
+        "type": "flowmeter",
+        "position": "1.1"
+    },
+    {
+        "id": 3,
+        "name": "Orion",
+        "location": "Saligao",
+        "type": "flowmeter",
+        "position": "1.1.1"
+    },
+    {
+        "id": 4,
+        "name": "Pegasus",
+        "location": "Mapusa",
+        "type": "flowmeter",
+        "position": "1.1.2"
+    },
+    {
+        "id": 5,
+        "name": "Phoenix",
+        "location": "Porvorim",
+        "type": "flowmeter",
+        "position": "1.1.3"
+    },
+    {
+        "id": 6,
+        "name": "Leo",
+        "location": "Vagator",
+        "type": "flowmeter",
+        "position": "1.2"
+    },
+    {
+        "id": 7,
+        "name": "Andromeda",
+        "location": "Anjuna",
+        "type": "flowmeter",
+        "position": "1.2.1"
+    },
+    {
+        "id": 8,
+        "name": "Aquarius",
+        "location": "Siolim",
+        "type": "flowmeter",
+        "position": "1.2.2"
+    },
+    {
+        "id": 9,
+        "name": "Lyra",
+        "location": "Arambol",
+        "type": "flowmeter",
+        "position": "1.2.3"
+    },
+    {
+        "id": 10,
+        "name": "Taurus",
+        "location": "Morjim",
+        "type": "flowmeter",
+        "position": "2"
+    },
+    {
+        "id": 11,
+        "name": "Virgo",
+        "location": "Chapora",
+        "type": "flowmeter",
+        "position": "2.1"
+    },
+    {
+        "id": 12,
+        "name": "Sagittarius",
+        "location": "Siolim",
+        "type": "flowmeter",
+        "position": "2.1.1"
+    },
+    {
+        "id": 13,
+        "name": "Gemini",
+        "location": "Calangute",
+        "type": "flowmeter",
+        "position": "2.1.2"
+    },
+    {
+        "id": 14,
+        "name": "Draco",
+        "location": "Candolim",
+        "type": "flowmeter",
+        "position": "2.1.3"
+    },
+    {
+        "id": 15,
+        "name": "Scorpio",
+        "location": "Sinquerim",
+        "type": "flowmeter",
+        "position": "2.2"
+    },
+    {
+        "id": 16,
+        "name": "Hercules",
+        "location": "Panaji",
+        "type": "flowmeter",
+        "position": "2.2.1"
+    },
+    {
+        "id": 17,
+        "name": "Cassiopeia",
+        "location": "Old Goa",
+        "type": "flowmeter",
+        "position": "2.2.2"
+    },
+    {
+        "id": 18,
+        "name": "Hydra",
+        "location": "Merces",
+        "type": "flowmeter",
+        "position": "2.2.3"
+    },
+    {
+        "id": 19,
+        "name": "Lupus",
+        "location": "Chimbel",
+        "type": "flowmeter",
+        "position": "3"
+    },
+    {
+        "id": 20,
+        "name": "Crater",
+        "location": "Panjim",
+        "type": "flowmeter",
+        "position": "3.1"
+    },
+    {
+        "id": 21,
+        "name": "Antlia",
+        "location": "Dona Paula",
+        "type": "flowmeter",
+        "position": "3.1.1"
+    },
+    {
+        "id": 22,
+        "name": "Volans",
+        "location": "Miramar",
+        "type": "flowmeter",
+        "position": "3.1.2"
+    },
+    {
+        "id": 23,
+        "name": "Pyxis",
+        "location": "Caranzalem",
+        "type": "flowmeter",
+        "position": "3.1.3"
+    },
+    {
+        "id": 24,
+        "name": "Corvus",
+        "location": "Dabolim",
+        "type": "flowmeter",
+        "position": "3.2"
+    },
+    {
+        "id": 25,
+        "name": "Centaurus",
+        "location": "Bogmalo",
+        "type": "flowmeter",
+        "position": "3.2.1"
+    },
+    {
+        "id": 26,
+        "name": "Cetus",
+        "location": "Vasco",
+        "type": "flowmeter",
+        "position": "3.2.2"
+    },
+    {
+        "id": 27,
+        "name": "Lynx",
+        "location": "Mormugao",
+        "type": "flowmeter",
+        "position": "3.2.3"
+    },
+    {
+        "id": 28,
+        "name": "Monoceros",
+        "location": "Ponda",
+        "type": "flowmeter",
+        "position": "4"
+    },
+    {
+        "id": 29,
+        "name": "Cancer",
+        "location": "Cortalim",
+        "type": "flowmeter",
+        "position": "4.1"
+    },
+    {
+        "id": 30,
+        "name": "Serpens",
+        "location": "Sancoale",
+        "type": "flowmeter",
+        "position": "4.1.1"
+    },
+    {
+        "id": 31,
+        "name": "Auriga",
+        "location": "Sancoale",
+        "type": "flowmeter",
+        "position": "4.1.2"
+    },
+    {
+        "id": 32,
+        "name": "Chamaeleon",
+        "location": "Bambolim",
+        "type": "flowmeter",
+        "position": "4.1.3"
+    },
+    {
+        "id": 33,
+        "name": "Indus",
+        "location": "Agassaim",
+        "type": "flowmeter",
+        "position": "4.2"
+    },
+    {
+        "id": 34,
+        "name": "Grus",
+        "location": "Santa Cruz",
+        "type": "flowmeter",
+        "position": "4.2.1"
+    },
+    {
+        "id": 35,
+        "name": "Dorado",
+        "location": "Chicalim",
+        "type": "flowmeter",
+        "position": "4.2.2"
+    },
+    {
+        "id": 36,
+        "name": "Apus",
+        "location": "Nagoa",
+        "type": "flowmeter",
+        "position": "4.2.3"
+    },
+    {
+        "id": 37,
+        "name": "Vela",
+        "location": "Betim",
+        "type": "flowmeter",
+        "position": "5"
+    },
+    {
+        "id": 38,
+        "name": "Reticulum",
+        "location": "Bardez",
+        "type": "flowmeter",
+        "position": "5.1"
+    },
+    {
+        "id": 39,
+        "name": "Fornax",
+        "location": "Verem",
+        "type": "flowmeter",
+        "position": "5.1.1"
+    },
+    {
+        "id": 40,
+        "name": "Sextans",
+        "location": "Nerul",
+        "type": "flowmeter",
+        "position": "5.1.2"
+    }
+]
