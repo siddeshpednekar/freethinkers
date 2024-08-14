@@ -122,9 +122,9 @@ export default {
       data: [],
       cards: [
         { numbers: "0", name: "No of Constituencies", icon: "ion-map" },
-        { numbers: "0", name: "Total No of Potholes Not Fixed", icon: "ion-alert" },
-        { numbers: "4", name: "No Of Flowmeters", icon: "ion-chatbubbles" },
-        { numbers: "$7,842", name: "Estimated Cost", icon: "ion-cash" },
+        { numbers: "0", name: "Potholes Not Fixed", icon: "ion-alert" },
+        { numbers: "4", name: "Flowmeters", icon: "ion-chatbubbles" },
+        { numbers: "0", name: "Estimated Area Pending", icon: "ion-square" },
       ],
       recentPotholes: [],
       isModalVisible: false,
@@ -140,7 +140,7 @@ export default {
 
     const potholeCounts = {};
     let totalPotholesNotFixed = 0;
-
+    let totalAreaFixed=0;
     jsonData.features.forEach((feature) => {
       const constituency = feature.properties.constituency;
       if (potholeCounts[constituency]) {
@@ -151,9 +151,10 @@ export default {
 
       if (!feature.properties.FixedOn) {
         totalPotholesNotFixed++;
+        totalAreaFixed+=feature.properties.area;
       }
     });
-
+    console.log(totalAreaFixed)
     this.data = Object.entries(potholeCounts).map(([key, value]) => ({
       constituency: key,
       count: value,
@@ -161,11 +162,12 @@ export default {
 
     this.cards[0].numbers = Object.keys(potholeCounts).length;
     this.cards[1].numbers = totalPotholesNotFixed;
-
+let estimatedArea = this.calculateEstimatedArea(); // Replace with your calculation logic
+  this.cards[3].numbers = `${totalAreaFixed} sq.ft`;
     this.constituencyList = this.data.map(d => ({
       name: d.constituency,
       pendingPotholes: d.count
-    }));
+    })).sort((a, b) => a.pendingPotholes - b.pendingPotholes);;
 
     this.recentPotholes = jsonData.features
       .sort((a, b) => new Date(b.properties.ComplaintReceived) - new Date(a.properties.ComplaintReceived))
@@ -184,6 +186,16 @@ export default {
     this.renderChart();
   },
   methods: {
+    calculateEstimatedArea() {
+    // Example logic to calculate area (replace with your logic)
+    let totalArea = 0;
+    this.recentPotholes.forEach(pothole => {
+      if (pothole.area) {
+        totalArea += pothole.area;
+      }
+    });
+    return totalArea;
+  },
     handleCardClick(index) {
       if (index === 0) {
         this.isConstituencyDialogVisible = true;

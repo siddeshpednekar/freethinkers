@@ -16,7 +16,7 @@ const routes = [
   },
   {
     path: '/flowlineg',
-    component: () => import('layouts/DashboardLayout.vue'),
+    component: () => import('/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/FlowMeterLine.vue') }
     ]

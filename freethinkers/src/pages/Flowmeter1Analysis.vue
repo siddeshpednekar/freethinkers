@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h1>Flowmeter Data Analysis</h1>
+    <div class="heading">
+      <span class="title">Flowmeter Data Analysis</span>
+    </div>
     <div v-if="error" class="error">
       <p>Error: {{ error }}</p>
     </div>
@@ -16,7 +18,7 @@
             :max="totalCount"
             color="red-10"
             track-color="grey-5"
-            size="150px"
+            size="200px"
             class="knob"
             :disable="!knobEnabled"
           />
@@ -28,9 +30,9 @@
             v-model="belowCount"
             :min="0"
             :max="totalCount"
-            color="yellow-10"
+            color="yellow-7"
             track-color="grey-5"
-            size="150px"
+            size="200px"
             class="knob"
             :disable="!knobEnabled"
           />
@@ -44,7 +46,7 @@
             :max="totalCount"
             color="green-10"
             track-color="grey-5"
-            size="150px"
+            size="200px"
             class="knob"
             :disable="!knobEnabled"
           />
@@ -53,10 +55,26 @@
         </div>
       </div>
       <div class="dropdowns">
-        <button @click="showDropdown('exceed')">Exceed</button>
-        <button @click="showDropdown('below')">Below</button>
-        <button @click="showDropdown('average')">Average</button>
-        <button @click="showDropdown('all')">All Data</button>
+        <button 
+          @click="showDropdown('exceed')" 
+          :class="{ active: selectedColor === 'exceed' }">
+          Exceed
+        </button>
+        <button 
+          @click="showDropdown('below')" 
+          :class="{ active: selectedColor === 'below' }">
+          Below
+        </button>
+        <button 
+          @click="showDropdown('average')" 
+          :class="{ active: selectedColor === 'average' }">
+          Average
+        </button>
+        <button 
+          @click="showDropdown('all')" 
+          :class="{ active: selectedColor === 'all' }">
+          All Data
+        </button>
       </div>
       <div class="flowmeter-info-container">
         <div class="flowmeter-selector">
@@ -78,11 +96,11 @@
         <button @click="toggleInfo" class="info-button">Info</button>
       </div>
       <div v-if="showInfo" class="threshold-info">
-        <h2>Threshold Information</h2>
+        <h2 style="font-size:2rem;">Threshold Information</h2>
         <p>Flowmeter {{ selectedFlowmeter }}</p>
-        <p>Average: {{ thresholds[selectedFlowmeter].average.toFixed(2) }}</p>
+        <p >Average: {{ thresholds[selectedFlowmeter].average.toFixed(2) }}</p>
         <p>Maximum: {{ thresholds[selectedFlowmeter].max.toFixed(2) }}</p>
-        <p>Minimum: {{ thresholds[selectedFlowmeter].min.toFixed(2) }}</p>
+        <p >Minimum: {{ thresholds[selectedFlowmeter].min.toFixed(2) }}</p>
         <p>Formula Used:</p>
         <ul>
           <li>Maximum = Average * 1.1</li>
@@ -111,6 +129,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 import { QKnob as VueKnob } from 'vue-knob';
@@ -122,7 +141,7 @@ export default {
       rawData: [],
       data: [],
       error: null,
-      selectedColor: null,
+      selectedColor: 'all', // Set default to 'all'
       selectedFlowmeter: '1',
       selectedMonth: '',
       thresholds: {
@@ -207,34 +226,40 @@ export default {
       }
     },
     updateData() {
-      const flowmeterField = `field${this.selectedFlowmeter * 2}`;
-      const selectedThresholds = this.thresholds[this.selectedFlowmeter];
+    const flowmeterField = `field${this.selectedFlowmeter * 2}`;
+    const selectedThresholds = this.thresholds[this.selectedFlowmeter];
 
-      this.data = this.rawData.map(item => {
-        const value = parseFloat(item[flowmeterField]);
-        let status = 'average';
+    let filteredData = this.rawData.map(item => {
+      const value = parseFloat(item[flowmeterField]);
+      let status = 'average';
 
-        if (value > selectedThresholds.max) {
-          status = 'exceed';
-        } else if (value < selectedThresholds.min) {
-          status = 'below';
-        }
+      if (value > selectedThresholds.max) {
+        status = 'exceed';
+      } else if (value < selectedThresholds.min) {
+        status = 'below';
+      }
 
-        return {
-          date: item[`Flowmeter ${this.selectedFlowmeter}`],
-          value,
-          status
-        };
-      });
+      return {
+        date: item[`Flowmeter ${this.selectedFlowmeter}`],
+        value,
+        status
+      };
+    });
 
-      this.updateKnobs();
-    },
-    updateKnobs() {
-      this.exceedCount = this.data.filter(item => item.status === 'exceed').length;
-      this.belowCount = this.data.filter(item => item.status === 'below').length;
-      this.averageCount = this.data.filter(item => item.status === 'average').length;
-      this.knobEnabled = false;
-    },
+    // Filter by month if selected
+    if (this.selectedMonth) {
+      filteredData = filteredData.filter(item => item.date && item.date.split('-')[1] === this.selectedMonth);
+    }
+
+    this.data = filteredData;
+    this.updateKnobs();
+  },
+  updateKnobs() {
+    this.exceedCount = this.data.filter(item => item.status === 'exceed').length;
+    this.belowCount = this.data.filter(item => item.status === 'below').length;
+    this.averageCount = this.data.filter(item => item.status === 'average').length;
+    this.knobEnabled = false;
+  },
     getStatusLabel(status) {
       switch (status) {
         case 'exceed': return 'Exceeded maximum threshold';
@@ -262,6 +287,7 @@ export default {
     },
     showDropdown(color) {
       this.selectedColor = color;
+      this.updateData(); // Update data based on selected color
     }
   },
   mounted() {
@@ -269,17 +295,21 @@ export default {
   }
 };
 </script>
+
+
 <style scoped>
 .knob-container {
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .knob-wrapper {
   position: relative;
   text-align: center;
   padding: 10px;
+  margin:1rem;
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -320,8 +350,8 @@ export default {
 .dropdowns {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
-  margin-top: 10%;
+  margin-bottom: 10px; /* Reduced from 20px to 10px */
+  margin-top: 10px; /* Reduced from 10% to 10px */
 }
 
 .dropdowns button {
@@ -341,13 +371,23 @@ export default {
   color: white;
 }
 
+
 /* Info Button Styles */
 
 
 .dropdown-content {
   margin-top: 20px;
 }
+.dropdowns button.active {
+  background-color: #2a2185;
+  color: white;
+  border: 2px solid #2a2185;
+}
 
+.dropdowns button:hover {
+  background-color: #2a2185;
+  color: white;
+}
 
 .flowmeter-info-container {
   display: flex;
@@ -355,6 +395,7 @@ export default {
   margin-top: 0;
   justify-content: center;
   align-content: center;
+  
 }
 
 .flowmeter-selector, .month-selector {
@@ -384,12 +425,12 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
   height: 50px;
-  margin-top: 10px;
+  margin-top: 5px; /* Reduced from 10px to 5px */
 }
 
 .info-button:hover {
-  background-color: white;
-  color: #2a2185;
+  background-color: #544caa;
+  color: #fff;
 }
 
 .data-table {
@@ -401,6 +442,7 @@ export default {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   
 }
+
 
 .data-table th, .data-table td {
   border: 1px solid #ddd;
@@ -441,11 +483,27 @@ export default {
   text-align: center;
 }
 
-h1{
-  text-align: center;
-  font-size: xxx-large;
-  padding: 2rem;
-  color: #2a2185;
+.heading{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.title{
+  font-size:1.5rem;
+  background:#fff;
+  margin:1rem;
+  color:#222;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.1);
+  padding:1rem;
+  border-radius:5rem;
+}
+.threshold-info{
+  background:#fff;
+  margin:2rem;
+  border-radius:2rem;
+  padding:2rem;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.1);
+  color:#131313;
 }
 
 </style>

@@ -1,9 +1,11 @@
 <template>
   <q-page padding>
   <div class="graph">
-  <span class="title">constituencies vs pending poles</span>
+  <span class="title">Constituencies vs Pending poles</span>
    <div id="bar-chart" class="chart-container"></div>
    </div>
+   <div class="graph">
+   <span class="title">List Of Pending poles</span></div>
     <q-table
       :rows="notFixedPotholes"
       :columns="columns"
@@ -254,6 +256,7 @@ export default {
 <style scoped>
 .q-page {
   background: var(--gray);
+  padding:1rem 2rem;
 }
 
 .q-table {
@@ -314,7 +317,19 @@ export default {
 }
 
 .title{
-  font-size:2rem;
-  color:#2a2185;
+  font-size:1rem;
+  background:#fff;
+  margin:1rem;
+  color:#222;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.1);
+  padding:1rem;
+  border-radius:5rem;
 }
+.chart-container {
+  margin-top: 20px;
+  overflow-x: auto; /* Allows horizontal scrolling */
+  overflow-y: hidden; /* Hides vertical scrolling */
+  max-width: 100%; /* Ensures container doesn't exceed viewport width */
+}
+
 </style>

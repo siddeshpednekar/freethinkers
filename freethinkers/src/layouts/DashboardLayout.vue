@@ -57,10 +57,11 @@ export default {
       navItems: [
         { title: "FreeThinkers", icon: "ion-logo-apple", src: "/img/logo.png"},
         { title: "Dashboard", icon: "ion-home",to:'/dashboard' },
-        { title: "Maps", icon: "ion-map" ,to:'/dashboard/maps'},
-        { title: "Pending Potholes", icon: "ion-help" ,to:'/dashboard/notfixed',src:'/file.png' },
-        { title: "FLowmeter Analysis", icon: "ion-settings" ,to:"/dashboard/flowanalysis",src:'/analytics.png'},
-        { title: "Flowmeter Data", icon: "ion-lock" ,to:'/dashboard/flowdata',src:'/database.png'},
+        { title: "Potholes Maps", icon: "ion-map" ,to:'/dashboard/maps'},
+        { title: "Pending Potholes", icon: "ion-clock" ,to:'/dashboard/notfixed' },
+        { title: "FLowmeter Analysis", icon: "ion-analytics" ,to:"/dashboard/flowanalysis"},
+        { title: "Flowmeter Data", icon: "ion-trending-up" ,to:'/dashboard/flowdata'},
+        { title: "Flowmeter Maps", icon: "ion-trending-up" ,to:'/dashboard/flowmaps'},
         { title: "Sign Out", icon: "ion-log-out",to:'/' },
       ],
     };
