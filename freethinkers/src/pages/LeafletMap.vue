@@ -5,6 +5,7 @@
       <div class="overlay">
         <div class="controls-container">
           <div class="toggles-container">
+            <div class="marker-toggle">
             <q-toggle
               v-model="showMarkers"
               label="Show Markers"
@@ -23,6 +24,7 @@
                 emit-value
                 @update:model-value="applyMarkerFilter"
               />
+            </div>
             </div>
             <q-toggle
               v-model="showHeatmap"
@@ -52,7 +54,7 @@
           </div>
         </div>
         <div class="details-container">
-          <q-card class="details-card constituency-details-card" v-if="constituencyDetails">
+          <q-card class="details-card constituency-details-card q-pt-sm" v-if="constituencyDetails">
             <q-card-section class="details-card-section">
               <div class="info-panel">
                 <div class="info-header">
@@ -72,7 +74,7 @@
               </div>
             </q-card-section>
           </q-card>
-          <q-card class="details-card location-details-card" v-if="displayLocationDetails">
+          <q-card class="details-card location-details-card q-pt-sm" v-if="displayLocationDetails">
             <q-card-section class="details-card-section">
               <div class="info-panel">
                 <div class="info-header">
@@ -372,7 +374,7 @@ const findAndDisplayPothole = () => {
 console.log(pothole)
   if (pothole) {
     const [lat, lng] = pothole.geometry.coordinates.slice().reverse();
-    map.value.setView([lat, lng], 30);
+    map.value.setView([lat, lng], 20);
 const potholeProperties = markers.value.find(marker => {if(marker.properties.id == potholeId.value)return marker.properties});
 console.log(potholeProperties)
     selectedLocation.value = pothole.properties;
@@ -469,10 +471,14 @@ watch(() => markerFilter.value, applyMarkerFilter);
   flex-direction: row;
 }
 
-
+.marker-toggle {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
 
 .toggle-button {
-  flex-shrink: 0; /* Prevent toggle from shrinking */
+  flex-shrink: 0; 
 }
 
 .search-bar {
@@ -533,6 +539,7 @@ watch(() => markerFilter.value, applyMarkerFilter);
   cursor: pointer;
   display: flex;
   align-items: center;
+  margin-right: -15px;
 }
 
 .details-content {
@@ -546,5 +553,56 @@ watch(() => markerFilter.value, applyMarkerFilter);
 .q-timeline {
   width: 100%;
 }
+
+
+@media (max-width: 830px) {
+  
+  .details-card {
+    width: 190px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .details-container {
+    margin-top: 90px;
+  }
+    
+
+  .controls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toggles-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  
+  .marker-toggle {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .search-container {
+    display: flex;
+    flex-direction: row;
+    margin-left: -35px;
+  }
+
+  .filter-select {
+    width: 110px;
+  }
+
+  .info-header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+}
+  
 
 </style>
