@@ -1,9 +1,33 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <template>
   <q-page class="q-pa-md">
     <q-card class="q-pa-md">
-      <h4>Flowmeter Data Visualization with Realistic Pipes and Flow Rate Gauge Animation</h4>
+      <h4 class="heading">Dynamic Flowmeter Network Visualization</h4>
       <div class="container">
-        <svg ref="flowDiagram" :width="width" :height="height"></svg>
+        <div class="svg-container">
+          <svg ref="flowDiagram" :width="width" :height="height"></svg>
+        </div>
+        <div id="tooltip" class="tooltip"></div>
       </div>
     </q-card>
   </q-page>
@@ -17,63 +41,92 @@ export default {
     return {
       width: 800,
       height: 600,
-      flowmeterData: [
-        { id: 1, name: "Ursa", location: "Assagao", position: "1", flowRate: 30 },
-        { id: 2, name: "Capricorn", location: "Aldona", position: "1.1", flowRate: 50 },
-        { id: 3, name: "Orion", location: "Saligao", position: "1.1.1", flowRate: 70 },
-        { id: 4, name: "Taurus", location: "Mapusa", position: "1.1.2", flowRate: 40 },
-        { id: 5, name: "Gemini", location: "Pernem", position: "1.2", flowRate: 80 }
-      ]
+      flowmeterData: [] // Initialize as empty array
     };
   },
   mounted() {
-    this.createFlowDiagram();
-    this.simulateRealTimeData();
+    this.fetchFlowmeterData(); // Fetch data when component is mounted
   },
   methods: {
+    async fetchFlowmeterData() {
+      try {
+        const response = await fetch('/test.json');
+        const data = await response.json();
+        this.flowmeterData = data; // Update flowmeterData with fetched data
+        this.createFlowDiagram(); // Create the diagram after data is fetched
+        this.simulateRealTimeData(); // Start simulation
+      } catch (error) {
+        console.error('Error fetching flowmeter data:', error);
+      }
+    },
+
     createFlowDiagram() {
       const svg = d3.select(this.$refs.flowDiagram);
       const margin = { top: 20, right: 40, bottom: 20, left: 40 };
       const width = this.width - margin.left - margin.right;
       const height = this.height - margin.top - margin.bottom;
 
-      const root = d3.stratify()
-        .id(d => d.position)
-        .parentId(d => d.position.substring(0, d.position.lastIndexOf('.')))
-        (this.flowmeterData);
+      // Create a single root node
+      const dataWithRoot = [
+        { id: "root", name: "Root", parentId: "",flowRate:"Root" }, // Root node
+        ...this.flowmeterData.map(d => ({
+          id: d.position,
+          name: d.name,
+          parentId: d.position.substring(0, d.position.lastIndexOf('.')) || "root",
+          location: d.location,
+          flowRate: d.flowRate
+        }))
+      ];
 
-      const treeLayout = d3.tree().size([height, width]);
+      // Use stratify to create a hierarchical structure
+      const root = d3.stratify()
+        .id(d => d.id)
+        .parentId(d => d.parentId)
+        (dataWithRoot);
+
+      const treeLayout = d3.tree().nodeSize([100, 200]); // Adjust nodeSize for spacing
       const treeData = treeLayout(root);
 
       const nodes = treeData.descendants();
       const links = treeData.links();
 
-      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+      // Clear previous content
+      svg.selectAll("*").remove();
 
-      // Create realistic pipes (links) with flowing water animation
+      const g = svg.append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      // Define zoom behavior
+      const zoom = d3.zoom()
+        .scaleExtent([0.5, 4])  // Set zoom scale range
+        .on("zoom", function(event) {
+          g.attr("transform", event.transform);
+        });
+
+      svg.call(zoom);
+
       g.selectAll(".pipe")
         .data(links)
         .enter()
         .append("path")
         .attr("class", "pipe")
         .attr("fill", "none")
-        .attr("stroke", "#d0cdd7")  // Color updated
+        .attr("stroke", "#d0cdd7")
         .attr("stroke-width", 20)
         .attr("d", d3.linkHorizontal()
           .x(d => d.y)
           .y(d => d.x)
         );
 
-      // Animated water flow within pipes
       g.selectAll(".water-flow")
         .data(links)
         .enter()
         .append("path")
         .attr("class", "water-flow")
         .attr("fill", "none")
-        .attr("stroke", "var(--blue)")  // Color updated
+        .attr("stroke", "var(--blue)")
         .attr("stroke-width", 12)
-        .attr("stroke-dasharray", "10, 20") // Stroke dashes to simulate flowing water
+        .attr("stroke-dasharray", "10, 20")
         .attr("d", d3.linkHorizontal()
           .x(d => d.y)
           .y(d => d.x)
@@ -90,29 +143,48 @@ export default {
             .duration(3000)
             .ease(d3.easeLinear)
             .attr("stroke-dashoffset", 0)
-            .on("end", repeat); // Loop the animation
+            .on("end", repeat);
         });
 
-      // Nodes with flow rate gauges
       const node = g.selectAll(".node")
         .data(nodes)
         .enter()
         .append("g")
         .attr("class", "node")
-        .attr("transform", d => `translate(${d.y},${d.x})`);
+        .attr("transform", d => `translate(${d.y},${d.x})`)
+        .on("mouseover", function(event, d) {
+          const tooltip = d3.select("#tooltip");
+          tooltip
+            .style("visibility", "visible")
+            .html(`
+              <strong>${d.data.name}</strong><br>
+              Location: ${d.data.location}<br>
+              Flow Rate: ${d.data.flowRate} l/s
+            `);
+        })
+        .on("mousemove", function(event) {
+          const tooltip = d3.select("#tooltip");
+          tooltip
+            .style("background", "var(--blue)")
+            .style("opacity", "0.9")
+            .style("top", (event.pageY - 139) + "px")
+            .style("left", (event.pageX - 340) + "px");
+        })
+        .on("mouseout", function() {
+          d3.select("#tooltip").style("visibility", "hidden");
+        });
 
-      // Flow rate gauges
       node.append("circle")
         .attr("r", 40)
-        .attr("fill", "var(--white)")  // Color updated
-        .attr("stroke", "var(--blue)")  // Color updated
+        .attr("fill", "var(--white)")
+        .attr("stroke", "var(--blue)")
         .attr("stroke-width", 2);
 
       node.append("circle")
         .attr("class", "gauge")
         .attr("r", 35)
         .attr("fill", "none")
-        .attr("stroke", "var(--blue)")  // Color updated
+        .attr("stroke", "var(--blue)")
         .attr("stroke-width", 10)
         .attr("stroke-dasharray", function(d) {
           const radius = 35;
@@ -132,40 +204,38 @@ export default {
           return circumference - (d.data.flowRate / 100) * circumference;
         });
 
-      // Flowmeter labels
       node.append("text")
         .attr("dy", -50)
         .attr("text-anchor", "middle")
         .style("font-size", "14px")
         .style("font-weight", "bold")
-        .style("fill", "var(--black1)")  // Color updated
-        .text(d => d.data.location); // Location name above the gauge
+        .style("fill", "var(--black1)")
+        .text(d => d.data.location);
 
-      // Flow rate reading inside the gauge
       node.append("text")
         .attr("class", "flow-rate-text")
         .attr("dy", 5)
         .attr("text-anchor", "middle")
         .style("font-size", "16px")
-        .style("fill", "var(--blue)")  // Color updated
-        .text(d => `${d.data.flowRate} l/s`); // Flow rate reading inside the gauge
-    },
+        .style("fill", "var(--blue)")
+        .text(d => `${d.data.flowRate} l/s`);
 
-    // Simulate real-time data changes
-    simulateRealTimeData() {
-      setInterval(() => {
-        this.flowmeterData.forEach(meter => {
-          // Randomly change flow rate to simulate real-time data
-          meter.flowRate = Math.max(0, Math.min(100, meter.flowRate + (Math.random() * 20 - 10)));
-        });
-        this.updateFlowRates();
-      }, 2000); // Update every 2 seconds
+      // Set initial zoom to fit the tree
+      const bounds = svg.node().getBBox();
+      const scale = Math.min(width / bounds.width, height / bounds.height);
+      const translate = [
+        (width - scale * (bounds.x + bounds.width / 2)) / 2,
+        (height - scale * (bounds.y + bounds.height / 2)) / 2
+      ];
+
+      svg.transition()
+        .duration(1000)
+        .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
     },
 
     updateFlowRates() {
       const svg = d3.select(this.$refs.flowDiagram);
 
-      // Update gauge strokes
       svg.selectAll(".gauge")
         .transition()
         .duration(1000)
@@ -180,7 +250,6 @@ export default {
           return circumference - (d.data.flowRate / 100) * circumference;
         });
 
-      // Update flow rate text
       svg.selectAll(".flow-rate-text")
         .transition()
         .duration(1000)
@@ -192,30 +261,63 @@ export default {
         });
     }
   }
-};
+}
 </script>
 
 <style scoped>
 .q-card {
   max-width: 1000px;
   margin: auto;
+  background-color: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.heading {
+  color: var(--blue);
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.svg-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  border: 1px solid var(--gray);
+  border-radius: 8px;
+  background-color: var(--gray);
 }
 .pipe {
   stroke-width: 20px;
-  stroke: var(--gray);  /* Color updated */
+  stroke: var(--gray);
 }
 .water-flow {
   stroke-width: 12px;
-  stroke: var(--blue);  /* Color updated */
+  stroke: var(--blue);
   stroke-dasharray: 10, 20;
 }
 .gauge {
   transition: stroke-dasharray 1s, stroke-dashoffset 1s;
 }
-
-.container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  visibility: hidden;
+  font-size: 14px;
+  white-space: nowrap;
 }
+
 </style>
+
+
+

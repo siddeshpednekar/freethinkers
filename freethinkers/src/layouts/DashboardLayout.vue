@@ -61,7 +61,7 @@ export default {
         { title: "Pending Potholes", icon: "ion-clock" ,to:'/dashboard/notfixed' },
         { title: "FLowmeter Analysis", icon: "ion-analytics" ,to:"/dashboard/flowanalysis"},
         { title: "Flowmeter Data", icon: "ion-trending-up" ,to:'/dashboard/flowdata'},
-        { title: "Flowmeter Maps", icon: "ion-trending-up" ,to:'/dashboard/flowmaps'},
+        { title: "Flowmeter Maps", icon: "ion-trending-up" ,to:'/dashboard/flowlineg'},
         { title: "Sign Out", icon: "ion-log-out",to:'/' },
       ],
     };
