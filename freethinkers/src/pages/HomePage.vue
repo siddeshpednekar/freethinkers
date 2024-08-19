@@ -167,7 +167,7 @@ let estimatedArea = this.calculateEstimatedArea(); // Replace with your calculat
     this.constituencyList = this.data.map(d => ({
       name: d.constituency,
       pendingPotholes: d.count
-    })).sort((a, b) => a.pendingPotholes - b.pendingPotholes);;
+    })).sort((a, b) => b.pendingPotholes-a.pendingPotholes);;
 
     this.recentPotholes = jsonData.features
       .sort((a, b) => new Date(b.properties.ComplaintReceived) - new Date(a.properties.ComplaintReceived))
