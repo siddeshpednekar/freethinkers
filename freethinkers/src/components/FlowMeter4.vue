@@ -184,15 +184,15 @@ export default {
                         end: endZoom,
                         backgroundColor: 'rgba(47, 69, 84, 0)',
                         fillerColor: 'rgba(47, 69, 84, 0.25)',
-                        borderColor: 'blue',
+                        borderColor: '#2a2185',
                         right: 90,
                         width: 30,
                         handleStyle: {
-                            color: 'blue',
-                            borderColor: 'blue',
+                            color: '#2a2185',
+                            borderColor: '#2a2185',
                         },
                         textStyle: {
-                            color: 'blue',
+                            color: 'black',
                         },
                     },
                     {
@@ -258,6 +258,7 @@ export default {
     },
 };
 </script>
+
 <style scoped>
 /* Base Styles for the Page */
 html,
@@ -289,13 +290,11 @@ body,
 /* Container for each graph */
 .graph-container {
     margin: 8px;
+    margin-left: 0px;
     position: relative;
-    /* background-color: #ffffff;
-    background-color: #f5f5f5; */
     background-color: #f5f5f5;
     border-radius: 12px;
     overflow: hidden;
-    /* box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); */
     width: 100%;
     height: auto;
     transition: all 0.3s ease;
@@ -304,7 +303,7 @@ body,
 /* Hover Effect for Graph Containers */
 .graph-container:hover {
     /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); */
-    transform: translateY(-4px);
+    transform: translateY(4px);
 }
 
 /* Main Container */
@@ -354,6 +353,7 @@ body,
     color: #2a2185;
     cursor: pointer;
     transition: transform 0.3s ease;
+    /* margin-left: 400px */
 }
 
 /* Hover Effect for Zoom Icons */
@@ -385,12 +385,14 @@ body,
 .zoomed {
     width: 100vw;
     height: 100vh;
+    /* padding: 3000px; */
     position: fixed;
     top: 0;
     left: 0;
     background-color: #ffffff;
     z-index: 1000;
-    padding: 32px;
+    padding: 100px;
+    padding-right: 0px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -423,6 +425,7 @@ body,
 /* Back Button Styling */
 .back-button {
     position: absolute;
+    margin-left: 100px;
     top: 16px;
     left: 16px;
     background-color: #ffffff;
@@ -455,7 +458,7 @@ body,
 
 /* Adjust chart container for zoomed-in state */
 .chart-container.zoomed .bar-chart-container {
-    height: 90vh;
+    height: 110vh;
 }
 
 .chart-container.zoomed .chart-zoom-icon {

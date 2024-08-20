@@ -79,7 +79,7 @@ export default {
 }
 
 .flowmeter-button {
-  width: 100%;
+  width: 300px;
   margin: 1rem ;
   font-weight: 600;
   text-transform: uppercase;
@@ -95,7 +95,7 @@ export default {
 
 .dashboard-content {
   /* background-color: red; */
-  width: 100%;
+  width: 1400px;
   display: flex;
   flex-direction: column;
   /* gap: 25px; */

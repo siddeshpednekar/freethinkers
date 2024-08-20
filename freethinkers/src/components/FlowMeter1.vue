@@ -33,6 +33,7 @@
         <!-- Zoomed Iframe -->
         <div v-if="zoomedIn === 'iframe3'" class="zoomed">
             <iframe src="http://localhost:3000/d-solo/cdtzkeuurnoqoc/flowmeter1?orgId=1&from=1683492212138&to=1684132683830&panelId=1" width="100%" height="100%" frameborder="0" title="Zoomed Flowmeter 1 Graph"></iframe>
+            
             <q-btn icon="arrow_back" class="back-button" @click="zoomOut" />
         </div>
     </div>
@@ -187,11 +188,11 @@ export default {
                         right: 90,
                         width: 30,
                         handleStyle: {
-                            color: 'blue',
-                            borderColor: 'blue',
+                            color: 'black',
+                            borderColor: '#2a2185',
                         },
                         textStyle: {
-                            color: 'blue',
+                            color: 'black',
                         },
                     },
                     {
@@ -227,8 +228,8 @@ export default {
 
             // Adjust size based on zoomed state
             if (isZoomed) {
-                chartContainer.style.width = '108vw';
-                chartContainer.style.height = '95vh';
+                chartContainer.style.width = '200vw';
+                chartContainer.style.height = '100vh';
             } else {
                 chartContainer.style.width = '90vw';
                 chartContainer.style.height = '60vh';
@@ -352,6 +353,7 @@ body,
     color: #2a2185;
     cursor: pointer;
     transition: transform 0.3s ease;
+    /* margin-left: 400px */
 }
 
 /* Hover Effect for Zoom Icons */
@@ -383,12 +385,14 @@ body,
 .zoomed {
     width: 100vw;
     height: 100vh;
+    /* padding: 3000px; */
     position: fixed;
     top: 0;
     left: 0;
     background-color: #ffffff;
     z-index: 1000;
-    padding: 32px;
+    padding: 100px;
+    padding-right: 0px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -421,6 +425,7 @@ body,
 /* Back Button Styling */
 .back-button {
     position: absolute;
+    margin-left: 100px;
     top: 16px;
     left: 16px;
     background-color: #ffffff;
@@ -453,7 +458,7 @@ body,
 
 /* Adjust chart container for zoomed-in state */
 .chart-container.zoomed .bar-chart-container {
-    height: 90vh;
+    height: 110vh;
 }
 
 .chart-container.zoomed .chart-zoom-icon {
