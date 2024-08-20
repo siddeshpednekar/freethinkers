@@ -1,7 +1,32 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-none">
     <q-card class="q-pa-md">
-      <h4 class="heading">Dynamic Flowmeter Network Visualization</h4>
+      <h4 class="heading">Dynamic Flowmeter Network Visualization
+        <q-btn label="Add New Flowmeter" class="btnsubmit" @click="showForm = true" />
+      </h4>
+
+
+      <!-- Form in a modal -->
+      <q-dialog v-model="showForm" persistent>
+        <q-card class="q-pa-md" style="min-width: 300px;">
+          <q-card-section>
+            <div class="text-h6">Add New Flowmeter</div>
+          </q-card-section>
+
+          <q-form @submit="addFlowmeter">
+            <q-input v-model="newFlowmeter.name" label="Name" required />
+            <q-input v-model="newFlowmeter.location" label="Location" required />
+            <q-input v-model="newFlowmeter.position" label="Position" required />
+            <q-input v-model.number="newFlowmeter.flowRate" label="Flow Rate (l/s)" required type="number" />
+
+            <q-card-actions align="center">
+              <q-btn class="btnsubmit" flat label="Cancel"  @click="showForm = false" />
+              <q-btn class="btnsubmit" type="submit" label="Add"  />
+            </q-card-actions>
+          </q-form>
+        </q-card>
+      </q-dialog>
+
       <div class="container">
         <div class="svg-container">
           <svg ref="flowDiagram" :width="width" :height="height"></svg>
@@ -12,22 +37,30 @@
   </q-page>
 </template>
 
+
 <script>
 import * as d3 from 'd3';
 
 export default {
   data() {
     return {
-      width: 800,
+      width: 1200,
       height: 600,
-      flowmeterData: [] // Initialize as empty array
+      flowmeterData: [],
+      showForm: false, 
+      newFlowmeter: {  // Initialize form data
+        name: '',
+        location: '',
+        position: '',
+        flowRate: 0
+      } // Initialize as empty array
     };
   },
   mounted() {
     this.fetchFlowmeterData(); // Fetch data when component is mounted
   },
   methods: {
-    async fetchFlowmeterData() {
+    async fetchFlowmeterData() {  
       try {
         const response = await fetch('/test.json');
         const data = await response.json();
@@ -37,6 +70,16 @@ export default {
       } catch (error) {
         console.error('Error fetching flowmeter data:', error);
       }
+    },
+
+    addFlowmeter() {
+      const newEntry = { ...this.newFlowmeter };
+      this.flowmeterData.push(newEntry);
+      this.createFlowDiagram();
+      this.showForm = false;  // Close modal after submission
+
+      // Reset form
+      this.newFlowmeter = { name: '', location: '', position: '', flowRate: 0 };
     },
 
     createFlowDiagram() {
@@ -63,7 +106,7 @@ export default {
         .parentId(d => d.parentId)
         (dataWithRoot);
 
-      const treeLayout = d3.tree().nodeSize([100, 200]); // Adjust nodeSize for spacing
+      const treeLayout = d3.tree().nodeSize([200, 400]); // Adjust nodeSize for spacing
       const treeData = treeLayout(root);
 
       const nodes = treeData.descendants();
@@ -245,11 +288,11 @@ export default {
 
 <style scoped>
 .q-card {
-  max-width: 1000px;
   margin: auto;
   background-color: var(--white);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90vw;
 }
 .heading {
   color: var(--blue);
@@ -257,6 +300,12 @@ export default {
   font-weight: bold;
   margin-bottom: 1rem;
   text-align: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.q-btn{
+  margin-right: 10%;
 }
 .container {
   display: flex;
@@ -296,7 +345,13 @@ export default {
   white-space: nowrap;
 }
 
+/* Add some margin to the form */
+q-form {
+  margin-bottom: 2rem;
+  color: white;
+}
+.btnsubmit{
+  background: var(--blue);
+  color: white;
+}
 </style>
-
-
-
