@@ -1,119 +1,159 @@
 <template>
-    <q-page>
-      <div id="map" style="height: 500px;"></div>
-    </q-page>
-  </template>
-  
-  <script>
-  import { onMounted, ref } from 'vue';
-  import L from 'leaflet';
-  import 'leaflet/dist/leaflet.css';
-  
-  export default {
-    name: 'FlowmeterMap',
-    setup() {
-      const map = ref(null);
-      const flowMeterData = ref([]); // Store the flowmeter data
-  
-      // Define a color palette for the pipelines
-      const colorPalette = {
-        '1': '#FF5733', // Red for pipelines starting with 1
-        '2': '#FFFF33', // Yellow for pipelines starting with 2
-        '3': '#33FF57', // Green for pipelines starting with 3
-        '4': '#33A1FF', // Blue for pipelines starting with 4
-        // Add more colors if needed
-      };
-  
-      const initializeMap = () => {
-        map.value = L.map('map').setView([15.5524, 73.7961], 12);
-  
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; OpenStreetMap contributors',
-        }).addTo(map.value);
-  
-        const coordinates = {};
-        const lines = {};
-  
-        // Process the flowmeter data
-        flowMeterData.value.forEach((meter) => {
-          if (meter.coordinates) {
-            const { latitude, longitude } = meter.coordinates;
-            const position = meter.position;
-            coordinates[position] = [latitude, longitude];
-  
-            // Add a marker for each flowmeter
-            const marker = L.marker([latitude, longitude]).addTo(map.value);
-            marker.bindPopup(`<b>${meter.name}</b><br>Location: ${meter.location}<br>Position: ${meter.position}`);
-  
-            // Draw lines for bifurcations
-            const parentPosition = position.split('.').slice(0, -1).join('.');
-            if (parentPosition) {
-              if (coordinates[parentPosition]) {
-                const parentCoordinates = coordinates[parentPosition];
-                const rootPosition = position.split('.')[0];
-                const lineColor = colorPalette[rootPosition] || '#000000'; // Default to black if no color is assigned
-  
-                const polyline = L.polyline([parentCoordinates, [latitude, longitude]], { color: lineColor }).addTo(map.value);
-  
-                // Create a label for the line, initially hidden
-                const label = L.divIcon({
-                  className: 'line-label',
-                  html: `<div style="background-color: ${lineColor}; padding: 2px 5px; border-radius: 3px; color: white; font-size: 12px;">${parentPosition} → ${position}</div>`,
-                  iconSize: [100, 40],
-                });
-  
-                const labelMarker = L.marker([
-                  (parentCoordinates[0] + latitude) / 2,
-                  (parentCoordinates[1] + longitude) / 2
-                ], {
-                  icon: label,
-                  opacity: 0 // Initially hide the label
-                }).addTo(map.value);
-  
-                // Show the label on mouseover and hide on mouseout
-                polyline.on('mouseover', () => {
-                  labelMarker.setOpacity(1);
-                });
-  
-                polyline.on('mouseout', () => {
-                  labelMarker.setOpacity(0);
-                });
-              } else {
-                console.warn(`Parent position not found in coordinates: ${parentPosition}`);
-              }
-            }
-          } else {
-            console.warn(`No coordinates found for: ${meter.name}`);
+  <q-page>
+    <div class="controls">
+      <q-select
+        v-model="selectedPipeline"
+        :options="pipelineOptions"
+        label="Select Pipeline"
+        outlined
+        dense
+        @update:model-value="filterPipelines"
+      />
+    </div>
+    <div id="map" class="map-container"></div>
+  </q-page>
+</template>
+
+<script>
+import { onMounted, ref } from 'vue';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+export default {
+  name: 'FlowmeterMap',
+  setup() {
+    const map = ref(null);
+    const flowMeterData = ref([]);
+    const pipelineOptions = ref(['All']); // Include "All" as the first option
+    const selectedPipeline = ref('All'); // Default to "All" option
+    const markers = ref([]);
+    const polylines = ref([]);
+
+    const colorPalette = {
+      '1': '#FF5733', 
+      '2': '#FFFF33', 
+      '3': '#33FF57', 
+      '4': '#33A1FF',
+      '5': '#113750',
+      '6': '#b9166d',
+      '7': '#1685b9',
+      '8': '#ccc000',
+      '9': '#ffffff', 
+    };
+
+    const initializeMap = () => {
+      map.value = L.map('map').setView([15.5524, 73.7961], 12);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(map.value);
+    };
+
+    const addMarkersAndLines = () => {
+      const coordinates = {};
+
+      flowMeterData.value.forEach((meter) => {
+        if (meter.coordinates) {
+          const { latitude, longitude } = meter.coordinates;
+          const position = meter.position;
+          const rootPosition = position.split('.')[0];
+
+          if (!pipelineOptions.value.includes(rootPosition)) {
+            pipelineOptions.value.push(rootPosition);
           }
-        });
-      };
-  
-      onMounted(async () => {
-        try {
-          // Fetch the data from the fm.json file
-          const response = await fetch('/fm.json');
-          flowMeterData.value = await response.json();
-  
-          // Initialize the map and draw markers and lines
-          initializeMap();
-        } catch (error) {
-          console.error('Error fetching or processing fm.json:', error);
+
+          coordinates[position] = [latitude, longitude];
+
+          const marker = L.marker([latitude, longitude]);
+          marker.bindPopup(
+            `<b>${meter.name}</b><br>Location: ${meter.location}<br>Position: ${meter.position}`
+          );
+          markers.value.push({ marker, rootPosition });
+
+          const parentPosition = position.split('.').slice(0, -1).join('.');
+          if (parentPosition && coordinates[parentPosition]) {
+            const parentCoordinates = coordinates[parentPosition];
+            const lineColor = colorPalette[rootPosition] || '#000000';
+
+            const polyline = L.polyline(
+              [parentCoordinates, [latitude, longitude]],
+              { color: lineColor, weight: 4, dashArray: '5, 10' }
+            );
+            polylines.value.push({ polyline, rootPosition });
+          }
         }
       });
-  
-      return {};
-    }
-  };
-  </script>
-  
-  <style>
-  /* Style for line labels */
-  .line-label {
-    font-size: 12px;
-    padding: 2px 5px;
-    border-radius: 3px;
-    color: black;
-    background-color: transparent; /* Set to transparent as the color is defined inline */
-  }
-  </style>
-  
+
+      filterPipelines(); // Apply the filter initially
+    };
+
+    const filterPipelines = () => {
+      markers.value.forEach(({ marker }) => marker.removeFrom(map.value));
+      polylines.value.forEach(({ polyline }) => polyline.removeFrom(map.value));
+
+      markers.value.forEach(({ marker, rootPosition }) => {
+        if (selectedPipeline.value === 'All' || selectedPipeline.value === rootPosition) {
+          marker.addTo(map.value);
+        }
+      });
+
+      polylines.value.forEach(({ polyline, rootPosition }) => {
+        if (selectedPipeline.value === 'All' || selectedPipeline.value === rootPosition) {
+          polyline.addTo(map.value);
+        }
+      });
+    };
+
+    onMounted(async () => {
+      try {
+        const response = await fetch('/fm.json');
+        flowMeterData.value = await response.json();
+        initializeMap();
+        addMarkersAndLines();
+      } catch (error) {
+        console.error('Error fetching or processing fm.json:', error);
+      }
+    });
+
+    return {
+      selectedPipeline,
+      pipelineOptions,
+      filterPipelines,
+    };
+  },
+};
+</script>
+
+<style>
+.map-container {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.line-label div {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  background-color: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  color: #1685b9;
+}
+
+.controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  width: 100px;
+}
+
+.q-select {
+  background-color: white;
+  border-radius: 5px;
+}
+</style>

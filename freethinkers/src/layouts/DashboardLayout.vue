@@ -62,6 +62,7 @@ export default {
         { title: "FLowmeter Analysis", icon: "ion-analytics" ,to:"/dashboard/flowanalysis"},
         { title: "Flowmeter Data", icon: "ion-trending-up" ,to:'/dashboard/flowdata'},
         { title: "Flowmeter visualisation", icon: "ion-water" ,to:'/dashboard/flowlineg'},
+        { title: "Flowmeter Map Layout", icon: "ion-locate" ,to:'/flowlineg2'},
         { title: "Sign Out", icon: "ion-log-out",to:'/' },
       ],
     };
