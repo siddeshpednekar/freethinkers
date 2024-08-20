@@ -20,6 +20,12 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/TestPage1.vue') }
     ]
+  },{
+    path: '/flowlineg2',
+    component: () => import('layouts/DashboardLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/FlowMeterMap.vue') }
+    ]
   },
 
   // Always leave this as last one,
