@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="heading">
-      <span class="title">Flowmeter Data Analysis</span>
+      <span class="title">FLOWMETER DATA ANALYSIS</span>
     </div>
     <div v-if="error" class="error">
       <p>Error: {{ error }}</p>
@@ -30,7 +30,7 @@
             v-model="belowCount"
             :min="0"
             :max="totalCount"
-            color="yellow-7"
+            color="cyan-7"
             track-color="grey-5"
             size="200px"
             class="knob"
@@ -267,14 +267,21 @@ export default {
         default: return 'Within average range';
       }
     },
-    getRowClass(status) {
-      switch (status) {
-        case 'exceed': return 'exceed-row';
-        case 'below': return 'below-row';
-        case 'average': return 'average-row';
-        default: return '';
-      }
-    },
+    
+  getRowClass(status) {
+    switch (status) {
+      case 'exceed':
+        return 'exceed-row';
+      case 'below':
+        return 'below-row';
+      case 'average':
+        return 'average-row';
+      default:
+        return '';
+    }
+  },
+
+
     toggleInfo() {
       this.showInfo = !this.showInfo;
     },
@@ -433,45 +440,63 @@ export default {
   color: #fff;
 }
 
+/* Container for handling table overflow */
+.table-container {
+  overflow-x: auto; /* Enable horizontal scrolling if needed */
+  margin: 20px 0; /* Add some margin for spacing */
+}
+
+/* Table with rounded corners and reduced size */
 .data-table {
-  width: 100%;
-  margin: 10px;
-  border-collapse: collapse;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  
+  width: 90%; /* Reduce table width to 90% of its container */
+  max-width: 1200px; /* Optionally set a maximum width for large screens */
+  border-collapse: separate; /* Allows border-radius to be applied */
+  border-spacing: 0; /* Remove default spacing between cells */
+  border-radius: 12px; /* Rounded corners for the table */
+  overflow: hidden; /* Ensures that content fits within the rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Shadow for table */
+  margin: 0 auto; /* Center the table horizontally */
+  table-layout: fixed; /* Fixes column width and makes it more responsive */
 }
 
-
-.data-table th, .data-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
+.data-table td, .data-table th {
+  padding: 8px; /* Reduced padding for smaller table */
   text-align: center;
-  
+  border: none; /* Remove borders from table cells and headers */
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Add ellipsis for overflow text */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
-.data-table tr {
-  color: white;
-  background: #2a2185;
-  
+.data-table th {
+  background-color: #2a2185; /* Background color for header */
+  color: white; /* Text color for header */
+  padding: 8px; /* Reduced padding for header cells */
+  font-size: 1.1em; /* Slightly reduced font size for header text */
+  font-weight: bold; /* Make header text bold */
+  border-bottom: 2px solid #ddd; /* Border below header */
 }
 
-.data-table .exceed-row {
-  background-color: #ff4c4c;
-  color: white;
+.data-table td:nth-child(3) { /* Target the Status column */
+  background-color: #fff; /* Default to white background */
 }
 
-.data-table .below-row {
-  background-color: #fff176;
-  color: black;
+.data-table .exceed-row td:nth-child(3) {
+  background-color: #f8d7da; /* Light red background for exceed status */
+  color: red; /* Text color red for exceed status */
 }
 
-.data-table .average-row {
-  background-color: #66bb6a;
-  color: white;
+.data-table .below-row td:nth-child(3) {
+  background-color: #d1ecf1; /* Light cyan background for below status */
+  color: #054e58; /* Text color for below status */
 }
 
+.data-table .average-row td:nth-child(3) {
+  background-color: #d4edda; /* Light green background for average status */
+  color: green; /* Text color green for average status */
+}
+
+/* Additional Styles for Layout and Content */
 .error {
   color: red;
   font-weight: bold;
@@ -483,27 +508,47 @@ export default {
   text-align: center;
 }
 
-.heading{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.title{
-  font-size:1.5rem;
-  background:#fff;
-  margin:1rem;
-  color:#222;
-  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.1);
-  padding:1rem;
-  border-radius:5rem;
-}
-.threshold-info{
-  background:#fff;
-  margin:2rem;
-  border-radius:2rem;
-  padding:2rem;
-  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.1);
-  color:#131313;
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.title {
+  font-size: 1.4rem; /* Reduced title font size */
+  background: #2a2185;
+  margin: 1rem;
+  color: #fff;
+  box-shadow: 0 7px 25px rgba(34, 33, 33, 0.1);
+  padding: 1rem;
+  border-radius: 5rem;
+}
+
+.threshold-info {
+  background: #fff;
+  margin: 2rem;
+  border-radius: 2rem;
+  padding: 2rem;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.1);
+  color: #131313;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .data-table td, .data-table th {
+    padding: 6px; /* Further reduced padding on smaller screens */
+    font-size: 0.9em; /* Slightly reduce font size */
+  }
+}
+
+@media (max-width: 480px) {
+  .data-table td, .data-table th {
+    padding: 4px; /* Further reduced padding */
+    font-size: 0.8em; /* Further reduce font size */
+  }
+
+  .title {
+    font-size: 1.2rem; /* Adjust title font size */
+  }
+}
 </style>
