@@ -1,6 +1,6 @@
 <template>
   <div class="loader-container">
-    <img src="/img/logo.png" alt="Loading..." class="loader-logo"><h4>logo</h4>
+    <img src="/img/logo.png" alt="Loading..." class="loader-logo"><h4>FreeThinkers</h4>
     <q-spinner color="primary" size="50px" />
   </div>
 </template>

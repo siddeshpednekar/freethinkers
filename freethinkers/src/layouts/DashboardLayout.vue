@@ -75,7 +75,10 @@ export default {
       this.hoveredIndex = index;
     },
     goto(route) {
+      if(route!="/dashboard/flowanalysis")
       this.isNavActive = !this.isNavActive;
+    else
+    this.isNavActive=true;
       this.$router.push(route);
     }
   },
