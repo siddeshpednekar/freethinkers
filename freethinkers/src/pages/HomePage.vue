@@ -202,7 +202,7 @@ let estimatedArea = this.calculateEstimatedArea(); // Replace with your calculat
       } else if (index === 1) {
         this.router.push('/dashboard/notfixed');
       }else if (index === 2) {
-        this.router.push('/dashboard/flowlineg');
+        this.router.push('/dashboard/flowanalysis');
       }
     },
     showPotholeDetails(pothole) {
